@@ -852,57 +852,47 @@ function rebuildLayout(){
     roof.userData.ovlType='polyhouse';addSceneEl(roof);
   }
 
-  // ── Side walls (south Z=0, north Z=48) ──
-  const wallMat=new THREE.MeshStandardMaterial({
-    color:0xddeeff,transparent:true,opacity:0.06,side:THREE.DoubleSide
-  });
-  [0,PH_W].forEach(z=>{
-    const sw=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,GH),wallMat);
-    sw.position.set(PH_L/2,GH/2,z);
-    sw.userData.ovlType='polyhouse';addSceneEl(sw);
-  });
-
-  // ── Cooling pad wall (X=0) — brown honeycomb ──
+  // ── Cooling pad wall — SOUTH (Z=0, 104m long) ──
   const padMat=new THREE.MeshStandardMaterial({color:0x92400e,transparent:true,opacity:0.35,side:THREE.DoubleSide});
-  const padWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_W,GH),padMat);
-  padWall.rotation.y=Math.PI/2;padWall.position.set(0,GH/2,PH_W/2);
+  const padWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,GH),padMat);
+  padWall.position.set(PH_L/2,GH/2,0);
   padWall.userData.ovlType='polyhouse';addSceneEl(padWall);
-  // Pad gable (triangular top)
-  for(let zs=0;zs<PH_W;zs+=SPAN){
-    const gVerts=[0,GH,zs, 0,GH,zs+SPAN, 0,RDG,zs+SPAN/2];
-    const gGeo=new THREE.BufferGeometry();
-    gGeo.setAttribute('position',new THREE.Float32BufferAttribute(gVerts,3));
-    gGeo.setIndex([0,1,2]);gGeo.computeVertexNormals();
-    const gable=new THREE.Mesh(gGeo,padMat);
-    gable.userData.ovlType='polyhouse';addSceneEl(gable);
-  }
-  const pl=lbl('\u2190 COOLING PADS','el');pl.position.set(-2,GH/2,PH_W/2);pl.userData.ovlType='polyhouse';addSceneEl(pl);
+  const pl=lbl('\u2191 COOLING PADS (South, 104m)','el');pl.position.set(PH_L/2,GH+0.5,-1.5);pl.userData.ovlType='polyhouse';addSceneEl(pl);
 
-  // ── Fan wall (X=104) — dark with fan circles ──
+  // ── Fan wall — NORTH (Z=48, 104m long) ──
   const fanMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,transparent:true,opacity:0.4,side:THREE.DoubleSide});
-  const fanWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_W,GH),fanMat);
-  fanWall.rotation.y=Math.PI/2;fanWall.position.set(PH_L,GH/2,PH_W/2);
+  const fanWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,GH),fanMat);
+  fanWall.position.set(PH_L/2,GH/2,PH_W);
   fanWall.userData.ovlType='polyhouse';addSceneEl(fanWall);
-  // Fan gables
-  for(let zs=0;zs<PH_W;zs+=SPAN){
-    const gVerts=[PH_L,GH,zs, PH_L,GH,zs+SPAN, PH_L,RDG,zs+SPAN/2];
-    const gGeo=new THREE.BufferGeometry();
-    gGeo.setAttribute('position',new THREE.Float32BufferAttribute(gVerts,3));
-    gGeo.setIndex([0,2,1]);gGeo.computeVertexNormals();
-    const gable=new THREE.Mesh(gGeo,fanMat);
-    gable.userData.ovlType='polyhouse';addSceneEl(gable);
-  }
-  // Fan circles (1.4m diameter exhaust fans)
-  const fanCircleGeo=new THREE.RingGeometry(0.4,0.7,16);
+  // 33 exhaust fans (60-inch, 35000 CFM each), spaced 3.15m
+  const fanCircleGeo=new THREE.RingGeometry(0.5,0.76,16);
   const fanCircleMat=new THREE.MeshStandardMaterial({color:0x3b82f6,side:THREE.DoubleSide,metalness:0.3,roughness:0.5});
-  for(let z=SPAN/2;z<PH_W;z+=SPAN){
+  const NFANS=33, fanSpacing=PH_L/(NFANS+1);
+  for(let i=1;i<=NFANS;i++){
     const fc=new THREE.Mesh(fanCircleGeo,fanCircleMat);
-    fc.rotation.y=Math.PI/2;fc.position.set(PH_L+0.01,GH*0.55,z);
+    fc.position.set(i*fanSpacing,GH*0.55,PH_W+0.01);
     fc.userData.ovlType='polyhouse';addSceneEl(fc);
   }
-  const fl=lbl('EXHAUST FANS \u2192','el');fl.position.set(PH_L+2,GH/2,PH_W/2);fl.userData.ovlType='polyhouse';addSceneEl(fl);
+  const fl=lbl('\u2193 EXHAUST FANS ×33 (North, 104m)','el');fl.position.set(PH_L/2,GH+0.5,PH_W+1.5);fl.userData.ovlType='polyhouse';addSceneEl(fl);
 
-  // ── Entry buffer (3m × 3m × 2.5m) ──
+  // ── End walls — EAST (X=104) & WEST (X=0) — structural transparent ──
+  const endMat=new THREE.MeshStandardMaterial({color:0xddeeff,transparent:true,opacity:0.06,side:THREE.DoubleSide});
+  [0,PH_L].forEach(x=>{
+    const ew=new THREE.Mesh(new THREE.PlaneGeometry(PH_W,GH),endMat);
+    ew.rotation.y=Math.PI/2;ew.position.set(x,GH/2,PH_W/2);
+    ew.userData.ovlType='polyhouse';addSceneEl(ew);
+    // Gable triangles
+    for(let zs=0;zs<PH_W;zs+=SPAN){
+      const gVerts=[x,GH,zs, x,GH,zs+SPAN, x,RDG,zs+SPAN/2];
+      const gGeo=new THREE.BufferGeometry();
+      gGeo.setAttribute('position',new THREE.Float32BufferAttribute(gVerts,3));
+      gGeo.setIndex(x===0?[0,1,2]:[0,2,1]);gGeo.computeVertexNormals();
+      const gable=new THREE.Mesh(gGeo,endMat);
+      gable.userData.ovlType='polyhouse';addSceneEl(gable);
+    }
+  });
+
+  // ── Entry buffer (3m × 3m × 2.5m) — West end ──
   const entryMat=new THREE.MeshStandardMaterial({color:0x22d3ee,transparent:true,opacity:0.1,side:THREE.DoubleSide});
   const entryGeo=new THREE.BoxGeometry(3,2.5,3);
   const entry=new THREE.Mesh(entryGeo,entryMat);

@@ -853,45 +853,107 @@ function rebuildLayout(){
   }
 
   // ══════════════════════════════════════════════════════════
-  // ── COOLING PADS — 7090 Cellulose, 2000×610×150mm blocks ──
+  // ── COOLING PAD SYSTEM — 7090 Cellulose, real installation ──
   // ══════════════════════════════════════════════════════════
-  // Pad specs: H=2000mm, W=610mm, D=150mm, 7mm flute, 45°/45°
-  const PAD_H=2.0, PAD_W=0.61, PAD_D=0.15;
-  const padRows=2; // 2 rows stacked = 4.0m coverage
-  const padCols=Math.floor(PH_L/PAD_W); // 170 blocks per row
-  const padBlockGeo=new THREE.BoxGeometry(PAD_W-0.01,PAD_H-0.01,PAD_D);
-  const padMat=new THREE.MeshStandardMaterial({color:0x8B5E3C,metalness:0.05,roughness:0.9});
-  const padGridMat=new THREE.MeshStandardMaterial({color:0x6B3F1C,metalness:0.05,roughness:0.95});
-  for(let r=0;r<padRows;r++){
-    for(let c=0;c<padCols;c++){
-      const px=c*PAD_W+PAD_W/2;
-      const py=r*PAD_H+PAD_H/2;
-      if(px>PH_L) continue;
-      const blk=new THREE.Mesh(padBlockGeo,(c+r)%2===0?padMat:padGridMat);
-      blk.position.set(px,py,-PAD_D/2);
-      blk.userData.ovlType='polyhouse';addSceneEl(blk);
+  // Real installation: Foundation wall → GI Frame → Pad media → Water trough → Gutter
+  const PAD_D=0.15; // 150mm thick pad
+  const FOUND_H=0.3; // 300mm concrete foundation wall
+  const PAD_AREA_H=GH-FOUND_H-0.15; // pad area height (leaving 150mm top gap for trough)
+  const FRAME_W=0.04; // GI frame member width
+  const PAD_BLOCK_W=0.61, PAD_BLOCK_H=2.0; // individual block dims for grid lines
+
+  // 1) Concrete foundation wall (300mm high brick/concrete base)
+  const foundMat=new THREE.MeshStandardMaterial({color:0x9e9e9e,metalness:0.1,roughness:0.9});
+  const foundation=new THREE.Mesh(new THREE.BoxGeometry(PH_L,FOUND_H,0.25),foundMat);
+  foundation.position.set(PH_L/2,FOUND_H/2,0);
+  foundation.userData.ovlType='polyhouse';addSceneEl(foundation);
+
+  // 2) GI Frame — outer border
+  const frameMat=new THREE.MeshStandardMaterial({color:0xa8a8a8,metalness:0.6,roughness:0.35});
+  // Top beam
+  const ftop=new THREE.Mesh(new THREE.BoxGeometry(PH_L,FRAME_W,PAD_D+0.04),frameMat);
+  ftop.position.set(PH_L/2,FOUND_H+PAD_AREA_H+FRAME_W/2,0);
+  ftop.userData.ovlType='polyhouse';addSceneEl(ftop);
+  // Bottom beam (on foundation)
+  const fbot=new THREE.Mesh(new THREE.BoxGeometry(PH_L,FRAME_W,PAD_D+0.04),frameMat);
+  fbot.position.set(PH_L/2,FOUND_H+FRAME_W/2,0);
+  fbot.userData.ovlType='polyhouse';addSceneEl(fbot);
+  // Left & right posts
+  [0,PH_L].forEach(x=>{
+    const fp=new THREE.Mesh(new THREE.BoxGeometry(FRAME_W,PAD_AREA_H,PAD_D+0.04),frameMat);
+    fp.position.set(x,FOUND_H+PAD_AREA_H/2,0);
+    fp.userData.ovlType='polyhouse';addSceneEl(fp);
+  });
+
+  // 3) GI Frame — vertical dividers (at column positions every 4m)
+  for(let x=BAY;x<PH_L;x+=BAY){
+    const vd=new THREE.Mesh(new THREE.BoxGeometry(FRAME_W,PAD_AREA_H,PAD_D+0.02),frameMat);
+    vd.position.set(x,FOUND_H+PAD_AREA_H/2,0);
+    vd.userData.ovlType='polyhouse';addSceneEl(vd);
+  }
+  // Horizontal divider (between stacked pad rows at 2.0m from foundation)
+  const hdiv=new THREE.Mesh(new THREE.BoxGeometry(PH_L,FRAME_W,PAD_D+0.02),frameMat);
+  hdiv.position.set(PH_L/2,FOUND_H+PAD_BLOCK_H,0);
+  hdiv.userData.ovlType='polyhouse';addSceneEl(hdiv);
+
+  // 4) Pad media — continuous brown honeycomb slab per bay section
+  const padMat=new THREE.MeshStandardMaterial({color:0x8B5A2B,metalness:0.02,roughness:0.95});
+  const padDarkMat=new THREE.MeshStandardMaterial({color:0x6B3F1C,metalness:0.02,roughness:0.95});
+  const nBays=Math.floor(PH_L/BAY);
+  for(let b=0;b<nBays;b++){
+    const bx=b*BAY+BAY/2;
+    // Lower pad section (foundation+0 to foundation+2.0m)
+    const lp=new THREE.Mesh(new THREE.BoxGeometry(BAY-FRAME_W,PAD_BLOCK_H-FRAME_W,PAD_D),
+      b%2===0?padMat:padDarkMat);
+    lp.position.set(bx,FOUND_H+FRAME_W/2+PAD_BLOCK_H/2,0);
+    lp.userData.ovlType='polyhouse';addSceneEl(lp);
+    // Upper pad section (2.0m to top)
+    const upH=PAD_AREA_H-PAD_BLOCK_H-FRAME_W;
+    if(upH>0.1){
+      const up=new THREE.Mesh(new THREE.BoxGeometry(BAY-FRAME_W,upH,PAD_D),
+        b%2===0?padDarkMat:padMat);
+      up.position.set(bx,FOUND_H+PAD_BLOCK_H+FRAME_W/2+upH/2,0);
+      up.userData.ovlType='polyhouse';addSceneEl(up);
     }
   }
-  // Water distribution pipe along top of pads
-  const padPipeGeo=new THREE.CylinderGeometry(0.05,0.05,PH_L,6);
-  const pipeMat=new THREE.MeshStandardMaterial({color:0x4a90d9,metalness:0.5,roughness:0.4});
-  const padPipe=new THREE.Mesh(padPipeGeo,pipeMat);
-  padPipe.rotation.z=Math.PI/2;padPipe.position.set(PH_L/2,PAD_H*padRows+0.08,-PAD_D/2);
-  padPipe.userData.ovlType='polyhouse';addSceneEl(padPipe);
-  // Drain gutter at base
-  const gutterShape=new THREE.BoxGeometry(PH_L,0.08,PAD_D+0.1);
-  const gutterMesh=new THREE.Mesh(gutterShape,new THREE.MeshStandardMaterial({color:0x707070,metalness:0.4,roughness:0.5}));
-  gutterMesh.position.set(PH_L/2,0.04,-PAD_D/2);
-  gutterMesh.userData.ovlType='polyhouse';addSceneEl(gutterMesh);
-  // Remaining wall above pads (transparent film)
-  if(PAD_H*padRows<GH){
-    const topGap=GH-PAD_H*padRows;
-    const topWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,topGap),
+
+  // 5) Water distribution trough (GI channel at top of pads)
+  const troughMat=new THREE.MeshStandardMaterial({color:0x5a8a9a,metalness:0.5,roughness:0.4});
+  // Trough back
+  const trBack=new THREE.Mesh(new THREE.BoxGeometry(PH_L,0.12,0.01),troughMat);
+  trBack.position.set(PH_L/2,FOUND_H+PAD_AREA_H+FRAME_W+0.06,-PAD_D/2-0.06);
+  trBack.userData.ovlType='polyhouse';addSceneEl(trBack);
+  // Trough bottom
+  const trBot=new THREE.Mesh(new THREE.BoxGeometry(PH_L,0.01,0.12),troughMat);
+  trBot.position.set(PH_L/2,FOUND_H+PAD_AREA_H+FRAME_W,0);
+  trBot.userData.ovlType='polyhouse';addSceneEl(trBot);
+  // Trough front lip
+  const trFront=new THREE.Mesh(new THREE.BoxGeometry(PH_L,0.06,0.01),troughMat);
+  trFront.position.set(PH_L/2,FOUND_H+PAD_AREA_H+FRAME_W+0.03,0.06);
+  trFront.userData.ovlType='polyhouse';addSceneEl(trFront);
+  // Water supply PVC pipe to trough
+  const supplyPipe=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,PH_L,6),
+    new THREE.MeshStandardMaterial({color:0x4a90d9,metalness:0.4,roughness:0.4}));
+  supplyPipe.rotation.z=Math.PI/2;
+  supplyPipe.position.set(PH_L/2,FOUND_H+PAD_AREA_H+FRAME_W+0.16,-PAD_D/2);
+  supplyPipe.userData.ovlType='polyhouse';addSceneEl(supplyPipe);
+
+  // 6) Collection gutter at base (PVC trough on foundation)
+  const colGutMat=new THREE.MeshStandardMaterial({color:0x606060,metalness:0.3,roughness:0.5});
+  const colGut=new THREE.Mesh(new THREE.BoxGeometry(PH_L,0.06,PAD_D+0.08),colGutMat);
+  colGut.position.set(PH_L/2,FOUND_H+0.03,0);
+  colGut.userData.ovlType='polyhouse';addSceneEl(colGut);
+
+  // 7) Wall above pad system (transparent poly film to gutter height)
+  const padTopGap=GH-(FOUND_H+PAD_AREA_H+FRAME_W+0.12);
+  if(padTopGap>0.05){
+    const topSeal=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,padTopGap),
       new THREE.MeshStandardMaterial({color:0xddeeff,transparent:true,opacity:0.06,side:THREE.DoubleSide}));
-    topWall.position.set(PH_L/2,PAD_H*padRows+topGap/2,0);
-    topWall.userData.ovlType='polyhouse';addSceneEl(topWall);
+    topSeal.position.set(PH_L/2,GH-padTopGap/2,0);
+    topSeal.userData.ovlType='polyhouse';addSceneEl(topSeal);
   }
-  const pl=lbl('\u2191 COOLING PADS 7090 (South, 104m) — 340 blocks','el');
+
+  const pl=lbl('\u2191 COOLING PADS 7090 × 150mm (South Wall, 104m)','el');
   pl.position.set(PH_L/2,GH+0.5,-1.5);pl.userData.ovlType='polyhouse';addSceneEl(pl);
 
   // ══════════════════════════════════════════════════════════

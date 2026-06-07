@@ -77,6 +77,7 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="tr"><label><span class="d" style="background:#059669"></span>Nursery</label><input type="checkbox" class="sw ovl" checked data-ovl="nursery"></div>
 <div class="tr"><label><span class="d" style="background:#f59e0b"></span>Circulation Fans</label><input type="checkbox" class="sw ovl" checked data-ovl="circFans"></div>
 <div class="tr"><label><span class="d" style="background:#06b6d4"></span>Fogger Lines</label><input type="checkbox" class="sw ovl" checked data-ovl="foggers"></div>
+<div class="tr"><label><span class="d" style="background:#8b5cf6"></span>Plumbing System</label><input type="checkbox" class="sw ovl" checked data-ovl="plumbing"></div>
 <div class="tr"><label><span class="d" style="background:#fbbf24"></span>Dimensions</label><input type="checkbox" class="sw" checked data-g="dims"></div>
 </div>
 <div class="sec">Tier 2 Expansion</div>
@@ -1125,6 +1126,81 @@ function rebuildLayout(){
     const nl=lbl('NURSERY / PACKING','el');
     nl.position.set(nursX+nursW/2,0.1,PH_W/2);nl.userData.ovlType='nursery';addSceneEl(nl);
   }
+
+  // ══════════════════════════════════════════════════════════
+  // ── PLUMBING SYSTEM — Tanks, Headers, Drains ──
+  // ══════════════════════════════════════════════════════════
+  const tankMat=new THREE.MeshStandardMaterial({color:0x1e3a5f,metalness:0.3,roughness:0.5,transparent:true,opacity:0.7});
+  const tankGreenMat=new THREE.MeshStandardMaterial({color:0x065f46,metalness:0.3,roughness:0.5,transparent:true,opacity:0.7});
+  const pipeBlue=new THREE.MeshStandardMaterial({color:0x3b82f6,metalness:0.4,roughness:0.4});
+  const pipeGreen=new THREE.MeshStandardMaterial({color:0x22c55e,metalness:0.4,roughness:0.4});
+  const pipePurple=new THREE.MeshStandardMaterial({color:0x8b5cf6,metalness:0.4,roughness:0.4});
+
+  // Tank 1: Raw Water (10,000L) — NW corner outside
+  const t1=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,2.2,12),tankMat);
+  t1.position.set(-3,1.1,PH_W-3);t1.userData.ovlType='plumbing';addSceneEl(t1);
+  const t1l=lbl('T1: RAW\n10,000L');t1l.position.set(-3,2.5,PH_W-3);t1l.userData.ovlType='plumbing';addSceneEl(t1l);
+
+  // RO System — Utility room
+  const roBox=new THREE.Mesh(new THREE.BoxGeometry(2,1.8,1),
+    new THREE.MeshStandardMaterial({color:0x6366f1,metalness:0.5,roughness:0.3,transparent:true,opacity:0.6}));
+  roBox.position.set(-3,0.9,PH_W-8);roBox.userData.ovlType='plumbing';addSceneEl(roBox);
+  const rol=lbl('RO 500LPH');rol.position.set(-3,2.0,PH_W-8);rol.userData.ovlType='plumbing';addSceneEl(rol);
+
+  // Tank 2: RO Water (5,000L) — Utility room
+  const t2=new THREE.Mesh(new THREE.CylinderGeometry(0.9,0.9,1.8,12),tankMat);
+  t2.position.set(-3,0.9,PH_W-12);t2.userData.ovlType='plumbing';addSceneEl(t2);
+  const t2l=lbl('T2: RO\n5,000L');t2l.position.set(-3,2.2,PH_W-12);t2l.userData.ovlType='plumbing';addSceneEl(t2l);
+
+  // Tank 3: Nutrient Mixing (5,000L) — Underground center-west
+  const t3=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.0,1.6,12),tankGreenMat);
+  t3.position.set(2,-0.8,PH_W/2);t3.userData.ovlType='plumbing';addSceneEl(t3);
+  const t3l=lbl('T3: NUTRIENT\nMIXING 5,000L');t3l.position.set(2,0.3,PH_W/2);t3l.userData.ovlType='plumbing';addSceneEl(t3l);
+
+  // Tank 4: Drain Collection (3,000L) — Adjacent to T3
+  const t4=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,1.4,12),tankGreenMat);
+  t4.position.set(2,-0.7,PH_W/2+4);t4.userData.ovlType='plumbing';addSceneEl(t4);
+  const t4l=lbl('T4: DRAIN\n3,000L');t4l.position.set(2,0.2,PH_W/2+4);t4l.userData.ovlType='plumbing';addSceneEl(t4l);
+
+  // Tank 5: Cooling Pad Sump (15,000L) — Outside south wall
+  const t5=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,2.4,12),
+    new THREE.MeshStandardMaterial({color:0xeab308,metalness:0.3,roughness:0.5,transparent:true,opacity:0.6}));
+  t5.position.set(PH_L/2,-1.2,-3);t5.userData.ovlType='plumbing';addSceneEl(t5);
+  const t5l=lbl('T5: COOLING\nPAD 15,000L');t5l.position.set(PH_L/2,0.3,-3);t5l.userData.ovlType='plumbing';addSceneEl(t5l);
+
+  // 4" Supply Header (blue) — runs along X axis at ground level
+  const supplyHeader=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,PH_L,6),pipeBlue);
+  supplyHeader.rotation.z=Math.PI/2;
+  supplyHeader.position.set(PH_L/2,0.06,3);supplyHeader.userData.ovlType='plumbing';addSceneEl(supplyHeader);
+  const shl=lbl('4\" SUPPLY HEADER (Blue)','el');
+  shl.position.set(PH_L/2,0.4,2);shl.userData.ovlType='plumbing';addSceneEl(shl);
+
+  // Block T-joints (9 reducing tees off supply header)
+  const tJointGeo=new THREE.BoxGeometry(0.15,0.15,0.15);
+  const tJointMat=new THREE.MeshStandardMaterial({color:0x60a5fa,metalness:0.5,roughness:0.3});
+  for(let b=0;b<BLOCKS;b++){
+    const bz=blkZ[b]+W+RW/2;
+    // T-joint on supply header
+    const tj=new THREE.Mesh(tJointGeo,tJointMat);
+    tj.position.set(setX[0]-0.5,0.06,3);tj.userData.ovlType='plumbing';addSceneEl(tj);
+    // 2" branch to block
+    const branch=new THREE.Mesh(new THREE.CylinderGeometry(0.032,0.032,bz-3,4),pipeBlue);
+    branch.position.set(setX[0]-0.5,0.06,(3+bz)/2);
+    branch.userData.ovlType='plumbing';addSceneEl(branch);
+  }
+
+  // 4" Return Drain (green) — runs along X axis, sloped to west
+  const returnDrain=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,PH_L,6),pipeGreen);
+  returnDrain.rotation.z=Math.PI/2;
+  returnDrain.position.set(PH_L/2,-0.06,PH_W-3);returnDrain.userData.ovlType='plumbing';addSceneEl(returnDrain);
+  const drl=lbl('4\" RETURN DRAIN (Green)','el');
+  drl.position.set(PH_L/2,0.3,PH_W-2);drl.userData.ovlType='plumbing';addSceneEl(drl);
+
+  // Utility Room outline
+  const utilWall=new THREE.Mesh(new THREE.BoxGeometry(0.1,3,8),
+    new THREE.MeshStandardMaterial({color:0x94a3b8,transparent:true,opacity:0.15}));
+  utilWall.position.set(-1.5,1.5,PH_W-8);utilWall.userData.ovlType='plumbing';addSceneEl(utilWall);
+  const utl=lbl('UTILITY ROOM');utl.position.set(-3,3.2,PH_W-8);utl.userData.ovlType='plumbing';addSceneEl(utl);
 
   // ── Block & row labels ──
   for(let b=0;b<BLOCKS;b++){

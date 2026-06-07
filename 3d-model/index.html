@@ -73,8 +73,7 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="tr"><label><span class="d" style="background:#f87171"></span>Walkway Strips</label><input type="checkbox" class="sw ovl" checked data-ovl="walkways"></div>
 <div class="tr"><label><span class="d" style="background:#6b7280"></span>Block Gaps</label><input type="checkbox" class="sw ovl" checked data-ovl="gaps"></div>
 <div class="tr"><label><span class="d" style="background:#3b82f6"></span>Blue Aisles</label><input type="checkbox" class="sw ovl" checked data-ovl="blueAisles"></div>
-<div class="tr"><label><span class="d" style="background:#fbbf24"></span>Columns (8×4m)</label><input type="checkbox" class="sw ovl" checked data-ovl="columns"></div>
-<div class="tr"><label><span class="d" style="background:#22d3ee"></span>Polyhouse</label><input type="checkbox" class="sw ovl" checked data-ovl="polyhouse"></div>
+<div class="tr"><label><span class="d" style="background:#b0b0b0"></span>Polyhouse Structure</label><input type="checkbox" class="sw ovl" checked data-ovl="polyhouse"></div>
 <div class="tr"><label><span class="d" style="background:#059669"></span>Nursery</label><input type="checkbox" class="sw ovl" checked data-ovl="nursery"></div>
 <div class="tr"><label><span class="d" style="background:#fbbf24"></span>Dimensions</label><input type="checkbox" class="sw" checked data-g="dims"></div>
 </div>
@@ -774,33 +773,142 @@ function rebuildLayout(){
     ba.userData.ovlType='blueAisles';addSceneEl(ba);
   });
 
-  // ── COLUMNS: Only at SAFE positions (never on sets or walkways) ──
-  const colGeo=new THREE.CylinderGeometry(0.06,0.06,0.35,6);
-  const colMat=new THREE.MeshStandardMaterial({color:0xfbbf24,metalness:0.5,roughness:0.3});
-  // Safe Z positions: block gap centers + polyhouse perimeter
-  const safeZ=[0, PH_W];
-  for(let b=0;b<BLOCKS-1;b++) safeZ.push(blkZ[b]+W+RW+W+BG/2);
-  // Safe X positions: blue aisle centers + polyhouse perimeter + nursery area
-  const safeX=[0, ...blueX, PH_L];
-  // Internal columns: blue aisle × block gap intersections
-  const placed=new Set();
-  safeX.forEach(x=>{
-    safeZ.forEach(z=>{
-      const k=Math.round(x*10)+'_'+Math.round(z*10);
-      if(placed.has(k)) return; placed.add(k);
-      const c=new THREE.Mesh(colGeo,colMat);c.position.set(x,0.175,z);
-      c.userData.ovlType='columns';addSceneEl(c);
-    });
-  });
-  // Perimeter wall columns (along polyhouse boundary, every 4m)
-  for(let x=4;x<PH_L;x+=4){
-    [0,PH_W].forEach(z=>{
-      const k=Math.round(x*10)+'_'+Math.round(z*10);
-      if(placed.has(k)) return; placed.add(k);
-      const c=new THREE.Mesh(colGeo,colMat);c.position.set(x,0.175,z);
-      c.userData.ovlType='columns';addSceneEl(c);
-    });
+  // ══════════════════════════════════════════════
+  // ── FULL POLYHOUSE STRUCTURE (NHB-compliant) ──
+  // ══════════════════════════════════════════════
+  const GH=4.5, RDG=6.0, SPAN=8, BAY=4;
+  const COL_R=0.038; // 76mm OD / 2
+
+  // ── Structural columns (76mm GI, 8m × 4m grid) ──
+  const sColGeo=new THREE.CylinderGeometry(COL_R,COL_R,GH,6);
+  const sColMat=new THREE.MeshStandardMaterial({color:0xb0b0b0,metalness:0.7,roughness:0.3});
+  for(let x=0;x<=PH_L;x+=BAY){
+    for(let z=0;z<=PH_W;z+=SPAN){
+      const c=new THREE.Mesh(sColGeo,sColMat);
+      c.position.set(x,GH/2,z);
+      c.userData.ovlType='polyhouse';addSceneEl(c);
+    }
   }
+
+  // ── Gutter beams (horizontal along X at each span boundary) ──
+  const gutGeo=new THREE.CylinderGeometry(0.03,0.03,PH_L,4);
+  const gutMat=new THREE.MeshStandardMaterial({color:0x909090,metalness:0.6,roughness:0.4});
+  for(let z=0;z<=PH_W;z+=SPAN){
+    const g=new THREE.Mesh(gutGeo,gutMat);
+    g.rotation.z=Math.PI/2;g.position.set(PH_L/2,GH,z);
+    g.userData.ovlType='polyhouse';addSceneEl(g);
+  }
+
+  // ── Arched trusses (every 2nd bay = every 8m for performance) ──
+  const archMat=new THREE.MeshStandardMaterial({color:0xa0a0a0,metalness:0.6,roughness:0.4});
+  for(let x=0;x<=PH_L;x+=BAY*2){
+    for(let zs=0;zs<PH_W;zs+=SPAN){
+      const pts=[];
+      for(let i=0;i<=12;i++){
+        const t=i/12;
+        const az=zs+t*SPAN;
+        const ay=GH+(RDG-GH)*4*t*(1-t);
+        pts.push(new THREE.Vector3(x,ay,az));
+      }
+      const curve=new THREE.CatmullRomCurve3(pts);
+      const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,12,0.02,3,false),archMat);
+      tube.userData.ovlType='polyhouse';addSceneEl(tube);
+    }
+  }
+
+  // ── Ridge purlins (at peak of each span) ──
+  const ridgeGeo=new THREE.CylinderGeometry(0.02,0.02,PH_L,4);
+  for(let zs=0;zs<PH_W;zs+=SPAN){
+    const r=new THREE.Mesh(ridgeGeo,gutMat);
+    r.rotation.z=Math.PI/2;r.position.set(PH_L/2,RDG,zs+SPAN/2);
+    r.userData.ovlType='polyhouse';addSceneEl(r);
+  }
+
+  // ── Roof cladding (curved semi-transparent per span) ──
+  const cladMat=new THREE.MeshStandardMaterial({
+    color:0xddeeff,transparent:true,opacity:0.07,
+    side:THREE.DoubleSide,metalness:0.1,roughness:0.2
+  });
+  const xSteps=Math.floor(PH_L/BAY)+1, zSegs=8;
+  for(let si=0;si<PH_W/SPAN;si++){
+    const z0=si*SPAN;
+    const verts=[],idx=[];
+    for(let xi=0;xi<xSteps;xi++){
+      for(let zi=0;zi<=zSegs;zi++){
+        const t=zi/zSegs;
+        verts.push(xi*BAY, GH+(RDG-GH)*4*t*(1-t), z0+t*SPAN);
+      }
+    }
+    for(let xi=0;xi<xSteps-1;xi++){
+      for(let zi=0;zi<zSegs;zi++){
+        const a=xi*(zSegs+1)+zi, b=a+1, c=(xi+1)*(zSegs+1)+zi, d=c+1;
+        idx.push(a,b,c,b,d,c);
+      }
+    }
+    const roofGeo=new THREE.BufferGeometry();
+    roofGeo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+    roofGeo.setIndex(idx);roofGeo.computeVertexNormals();
+    const roof=new THREE.Mesh(roofGeo,cladMat);
+    roof.userData.ovlType='polyhouse';addSceneEl(roof);
+  }
+
+  // ── Side walls (south Z=0, north Z=48) ──
+  const wallMat=new THREE.MeshStandardMaterial({
+    color:0xddeeff,transparent:true,opacity:0.06,side:THREE.DoubleSide
+  });
+  [0,PH_W].forEach(z=>{
+    const sw=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,GH),wallMat);
+    sw.position.set(PH_L/2,GH/2,z);
+    sw.userData.ovlType='polyhouse';addSceneEl(sw);
+  });
+
+  // ── Cooling pad wall (X=0) — brown honeycomb ──
+  const padMat=new THREE.MeshStandardMaterial({color:0x92400e,transparent:true,opacity:0.35,side:THREE.DoubleSide});
+  const padWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_W,GH),padMat);
+  padWall.rotation.y=Math.PI/2;padWall.position.set(0,GH/2,PH_W/2);
+  padWall.userData.ovlType='polyhouse';addSceneEl(padWall);
+  // Pad gable (triangular top)
+  for(let zs=0;zs<PH_W;zs+=SPAN){
+    const gVerts=[0,GH,zs, 0,GH,zs+SPAN, 0,RDG,zs+SPAN/2];
+    const gGeo=new THREE.BufferGeometry();
+    gGeo.setAttribute('position',new THREE.Float32BufferAttribute(gVerts,3));
+    gGeo.setIndex([0,1,2]);gGeo.computeVertexNormals();
+    const gable=new THREE.Mesh(gGeo,padMat);
+    gable.userData.ovlType='polyhouse';addSceneEl(gable);
+  }
+  const pl=lbl('\u2190 COOLING PADS','el');pl.position.set(-2,GH/2,PH_W/2);pl.userData.ovlType='polyhouse';addSceneEl(pl);
+
+  // ── Fan wall (X=104) — dark with fan circles ──
+  const fanMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,transparent:true,opacity:0.4,side:THREE.DoubleSide});
+  const fanWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_W,GH),fanMat);
+  fanWall.rotation.y=Math.PI/2;fanWall.position.set(PH_L,GH/2,PH_W/2);
+  fanWall.userData.ovlType='polyhouse';addSceneEl(fanWall);
+  // Fan gables
+  for(let zs=0;zs<PH_W;zs+=SPAN){
+    const gVerts=[PH_L,GH,zs, PH_L,GH,zs+SPAN, PH_L,RDG,zs+SPAN/2];
+    const gGeo=new THREE.BufferGeometry();
+    gGeo.setAttribute('position',new THREE.Float32BufferAttribute(gVerts,3));
+    gGeo.setIndex([0,2,1]);gGeo.computeVertexNormals();
+    const gable=new THREE.Mesh(gGeo,fanMat);
+    gable.userData.ovlType='polyhouse';addSceneEl(gable);
+  }
+  // Fan circles (1.4m diameter exhaust fans)
+  const fanCircleGeo=new THREE.RingGeometry(0.4,0.7,16);
+  const fanCircleMat=new THREE.MeshStandardMaterial({color:0x3b82f6,side:THREE.DoubleSide,metalness:0.3,roughness:0.5});
+  for(let z=SPAN/2;z<PH_W;z+=SPAN){
+    const fc=new THREE.Mesh(fanCircleGeo,fanCircleMat);
+    fc.rotation.y=Math.PI/2;fc.position.set(PH_L+0.01,GH*0.55,z);
+    fc.userData.ovlType='polyhouse';addSceneEl(fc);
+  }
+  const fl=lbl('EXHAUST FANS \u2192','el');fl.position.set(PH_L+2,GH/2,PH_W/2);fl.userData.ovlType='polyhouse';addSceneEl(fl);
+
+  // ── Entry buffer (3m × 3m × 2.5m) ──
+  const entryMat=new THREE.MeshStandardMaterial({color:0x22d3ee,transparent:true,opacity:0.1,side:THREE.DoubleSide});
+  const entryGeo=new THREE.BoxGeometry(3,2.5,3);
+  const entry=new THREE.Mesh(entryGeo,entryMat);
+  entry.position.set(-1.5,1.25,PH_W/2);
+  entry.userData.ovlType='polyhouse';addSceneEl(entry);
+  const el=lbl('ENTRY');el.position.set(-1.5,2.8,PH_W/2);el.userData.ovlType='polyhouse';addSceneEl(el);
 
   // ── Nursery area ──
   const nursX=setsEndX+1.0,nursW=PH_L-nursX-1.0;
@@ -820,15 +928,10 @@ function rebuildLayout(){
     const al=lbl((b+1)+'A');al.position.set(setX[0]-0.5,0.1,bz+W/2);al.userData.ovlType='setLabels';addSceneEl(al);
     const bbl=lbl((b+1)+'B');bbl.position.set(setX[0]-0.5,0.1,bz+W+RW+W/2);bbl.userData.ovlType='setLabels';addSceneEl(bbl);
   }
-  // Set number markers along top
   [0,4,9,14,19,25].forEach(s=>{
     const sl=lbl(''+(s+1));sl.position.set(setX[s]+L/2,0.15,blkZ[0]-0.6);
     sl.userData.ovlType='setLabels';addSceneEl(sl);
   });
-
-  // ── Fan & Pad labels ──
-  const fl=lbl('EXHAUST FANS \u2192','el');fl.position.set(PH_L+2,0.1,PH_W/2);fl.userData.ovlType='polyhouse';addSceneEl(fl);
-  const pl=lbl('\u2190 COOLING PADS','el');pl.position.set(-2,0.1,PH_W/2);pl.userData.ovlType='polyhouse';addSceneEl(pl);
 
   // ── Camera ──
   cam.position.set(PH_L*0.6,35,PH_W*0.8);ctl.target.copy(lctr);ctl.update();

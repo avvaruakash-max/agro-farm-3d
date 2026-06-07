@@ -864,16 +864,16 @@ function rebuildLayout(){
   const fanWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,GH),fanMat);
   fanWall.position.set(PH_L/2,GH/2,PH_W);
   fanWall.userData.ovlType='polyhouse';addSceneEl(fanWall);
-  // 33 exhaust fans (60-inch, 35000 CFM each), spaced 3.15m
-  const fanCircleGeo=new THREE.RingGeometry(0.5,0.76,16);
+  // 40 × SNVF-1380 exhaust fans (1250mm blade, 44000 m³/hr, 1380mm frame)
+  const fanCircleGeo=new THREE.RingGeometry(0.45,0.69,16);
   const fanCircleMat=new THREE.MeshStandardMaterial({color:0x3b82f6,side:THREE.DoubleSide,metalness:0.3,roughness:0.5});
-  const NFANS=33, fanSpacing=PH_L/(NFANS+1);
+  const NFANS=40, fanSpacing=PH_L/(NFANS+1);
   for(let i=1;i<=NFANS;i++){
     const fc=new THREE.Mesh(fanCircleGeo,fanCircleMat);
     fc.position.set(i*fanSpacing,GH*0.55,PH_W+0.01);
     fc.userData.ovlType='polyhouse';addSceneEl(fc);
   }
-  const fl=lbl('\u2193 EXHAUST FANS ×33 (North, 104m)','el');fl.position.set(PH_L/2,GH+0.5,PH_W+1.5);fl.userData.ovlType='polyhouse';addSceneEl(fl);
+  const fl=lbl('\u2193 40\u00d7 SNVF-1380 EXHAUST FANS (North, 104m)','el');fl.position.set(PH_L/2,GH+0.5,PH_W+1.5);fl.userData.ovlType='polyhouse';addSceneEl(fl);
 
   // ── End walls — EAST (X=104) & WEST (X=0) — structural transparent ──
   const endMat=new THREE.MeshStandardMaterial({color:0xddeeff,transparent:true,opacity:0.06,side:THREE.DoubleSide});

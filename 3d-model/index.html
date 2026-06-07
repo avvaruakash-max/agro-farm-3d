@@ -688,28 +688,45 @@ function rebuildLayout(){
     }
   }
 
-  // ── Full detail clones for ALL 468 sets ──
+  // ── Hybrid rendering: Block 1 detailed, Blocks 2-9 simplified ──
   const cloneKeys=Object.keys(G).filter(k=>k!=='dims');
   const baseX=positions[0].dx, baseZ=positions[0].dz;
 
   // Position all G groups at the first set location
   for(const[key,grp] of Object.entries(G)) grp.position.set(baseX,0,baseZ);
 
+  // Block 1 = first 52 positions (26 sets × 2 rows), get full detail clones
+  // Blocks 2-9 = remaining positions, get lightweight boxes
+  const DETAIL_COUNT=SPC*2; // 52 positions for Block 1
+  const setGeo=new THREE.BoxGeometry(L-0.08,H*0.18,W-0.08);
+  const bCols=[0x1e3a5f,0x1a5040,0x4a2a5a,0x5a3a2a,0x2a4a5a,0x3a5a2a,0x5a2a4a,0x2a3a5a,0x4a5a2a];
+
   positions.forEach((pos,idx)=>{
+    const blockIdx=Math.floor(idx/(SPC*2));
     if(idx===0){
       layoutClones.push({...pos,wrappers:null,isOriginal:true,t2Visible:false});
       return;
     }
-    const wrappers={};
-    for(const key of cloneKeys){
-      if(!G[key]||!TMPL[key]) continue;
-      const w=new THREE.Group();
-      w.position.set(pos.dx-baseX, 0, pos.dz-baseZ);
-      TMPL[key].forEach(child=>w.add(child.clone()));
-      G[key].add(w);
-      wrappers[key]=w;
+    if(idx<DETAIL_COUNT){
+      // Block 1: full detail clone
+      const wrappers={};
+      for(const key of cloneKeys){
+        if(!G[key]||!TMPL[key]) continue;
+        const w=new THREE.Group();
+        w.position.set(pos.dx-baseX, 0, pos.dz-baseZ);
+        TMPL[key].forEach(child=>w.add(child.clone()));
+        G[key].add(w);
+        wrappers[key]=w;
+      }
+      layoutClones.push({...pos,wrappers,isOriginal:false,t2Visible:false});
+    } else {
+      // Blocks 2-9: lightweight colored box
+      const mat=new THREE.MeshStandardMaterial({color:bCols[blockIdx],metalness:0.2,roughness:0.6});
+      const m=new THREE.Mesh(setGeo,mat);
+      m.position.set(pos.dx+L/2, H*0.09, pos.dz+W/2);
+      m.castShadow=true;addSceneEl(m);
+      layoutClones.push({...pos,wrappers:null,isOriginal:false,t2Visible:false});
     }
-    layoutClones.push({...pos,wrappers,isOriginal:false,t2Visible:false});
   });
 
   // ── Scene center ──

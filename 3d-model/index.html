@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agro Grove – Precision NFT Frame | Rev 3</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#06060c;color:#e0e0e8;overflow:hidden;width:100vw;height:100vh}
+canvas{display:block;position:fixed;top:0;left:0}
+.pnl{position:fixed;background:rgba(10,10,18,0.92);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;z-index:100;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+#ctrl{top:12px;left:12px;width:250px;max-height:calc(100vh - 24px);overflow-y:auto}
+#bom{top:12px;right:12px;width:290px;max-height:calc(100vh - 24px);overflow-y:auto}
+#sbar{bottom:12px;left:50%;transform:translateX(-50%);padding:10px 20px}
+.pnl h1{font-size:14px;font-weight:800;color:#fff;letter-spacing:-0.03em}
+.sub{font-size:9px;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px}
+.sec{font-size:8px;font-weight:600;color:rgba(255,255,255,0.22);text-transform:uppercase;letter-spacing:0.12em;margin:12px 0 6px 0;padding-bottom:3px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.tr{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
+.tr label{font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+.d{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+.sw{appearance:none;-webkit-appearance:none;width:30px;height:16px;background:rgba(255,255,255,0.06);border-radius:8px;position:relative;cursor:pointer;transition:background .2s;border:none;outline:none;flex-shrink:0}
+.sw::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,0.45);top:2px;left:2px;transition:transform .2s,background .2s}
+.sw:checked{background:#22c55e}
+.sw:checked::after{transform:translateX(14px);background:#fff}
+.cg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-top:4px}
+.cb{padding:5px 0;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.4);border-radius:5px;font-size:9px;cursor:pointer;transition:all .2s;font-family:inherit;font-weight:500}
+.cb:hover{background:rgba(255,255,255,0.06);color:#fff}
+.bt{width:100%;border-collapse:collapse;font-size:10px;margin-top:4px}
+.bt th{text-align:left;color:rgba(255,255,255,0.3);font-weight:500;padding:2px 3px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.bt td{padding:2px 3px;color:rgba(255,255,255,0.65)}
+.bt td:last-child,.bt th:last-child{text-align:right}
+.bt tr.tot td{color:#4ade80;font-weight:700;border-top:1px solid rgba(74,222,128,0.15);padding-top:4px}
+.sps{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.sp .v{font-size:13px;font-weight:700;color:#fff}
+.sp .k{font-size:8px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.05em}
+.dl{color:#fbbf24;font-size:8px;font-family:'Inter',sans-serif;font-weight:600;background:rgba(251,191,36,0.08);padding:1px 4px;border-radius:3px;pointer-events:none;white-space:nowrap;border:1px solid rgba(251,191,36,0.12)}
+.el{color:#a78bfa;font-size:7.5px;font-family:'Inter',sans-serif;font-weight:600;background:rgba(167,139,250,0.08);padding:1px 4px;border-radius:3px;pointer-events:none;white-space:nowrap;border:1px solid rgba(167,139,250,0.12)}
+#tip{position:fixed;display:none;background:rgba(6,6,12,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:6px 10px;font-size:10px;color:#fff;pointer-events:none;z-index:200;max-width:240px;box-shadow:0 4px 20px rgba(0,0,0,0.7);line-height:1.4}
+#ld{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:#06060c;font-size:12px;color:rgba(255,255,255,0.3);transition:opacity .5s}
+#ld.h{opacity:0;pointer-events:none}
+.pnl::-webkit-scrollbar{width:3px}
+.pnl::-webkit-scrollbar-track{background:transparent}
+.pnl::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.05);border-radius:2px}
+.sld-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0;gap:6px}
+.sld-row label{font-size:10px;color:rgba(255,255,255,0.5);min-width:55px;flex-shrink:0}
+.sld-row input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.08);border-radius:2px;outline:none;cursor:pointer}
+.sld-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;border:none;box-shadow:0 0 4px rgba(0,0,0,0.4)}
+.sld-row .sval{font-size:9px;color:rgba(255,255,255,0.35);min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div id="ld">Loading Precision Model…</div>
+
+<div class="pnl" id="ctrl">
+<h1>🌿 Agro Grove</h1>
+<div class="sub">Precision Frame – Rev 3 (Juzer Hardware)</div>
+<div class="sec">Components</div>
+<div class="tr"><label><span class="d" style="background:#9ca3af"></span>Alu Profile 40×40</label><input type="checkbox" class="sw" checked data-g="frame"></div>
+<div class="tr"><label><span class="d" style="background:#78716c"></span>Brackets J38-BK</label><input type="checkbox" class="sw" checked data-g="brackets"></div>
+<div class="tr"><label><span class="d" style="background:#a8a29e"></span>T-Nuts & Screws</label><input type="checkbox" class="sw" checked data-g="hardware"></div>
+<div class="tr"><label><span class="d" style="background:#525252"></span>End Caps</label><input type="checkbox" class="sw" checked data-g="endcaps"></div>
+<div class="tr"><label><span class="d" style="background:#e5e7eb"></span>NFT Channels</label><input type="checkbox" class="sw" checked data-g="pipes"></div>
+<div class="tr"><label><span class="d" style="background:#4ade80"></span>Net Cups (98)</label><input type="checkbox" class="sw" checked data-g="cups"></div>
+<div class="tr"><label><span class="d" style="background:#22c55e"></span>Supply Pipe</label><input type="checkbox" class="sw" checked data-g="supply"></div>
+<div class="tr"><label><span class="d" style="background:#3b82f6"></span>Collection Pipe</label><input type="checkbox" class="sw" checked data-g="collect"></div>
+<div class="tr"><label><span class="d" style="background:#60a5fa"></span>Water Film</label><input type="checkbox" class="sw" checked data-g="water"></div>
+<div class="sec">Overlays</div>
+<div class="tr"><label><span class="d" style="background:#ef4444"></span>Hide All Cues</label><input type="checkbox" class="sw" id="sw-hideAll"></div>
+<div id="overlay-opts" style="padding-left:8px">
+<div class="tr"><label><span class="d" style="background:#c084fc"></span>Block Labels</label><input type="checkbox" class="sw ovl" checked data-ovl="qLabels"></div>
+<div class="tr"><label><span class="d" style="background:#fbbf24"></span>Set Labels</label><input type="checkbox" class="sw ovl" checked data-ovl="setLabels"></div>
+<div class="tr"><label><span class="d" style="background:#f87171"></span>Walkway Strips</label><input type="checkbox" class="sw ovl" checked data-ovl="walkways"></div>
+<div class="tr"><label><span class="d" style="background:#6b7280"></span>Block Gaps</label><input type="checkbox" class="sw ovl" checked data-ovl="gaps"></div>
+<div class="tr"><label><span class="d" style="background:#3b82f6"></span>Blue Aisles</label><input type="checkbox" class="sw ovl" checked data-ovl="blueAisles"></div>
+<div class="tr"><label><span class="d" style="background:#fbbf24"></span>Columns (8×4m)</label><input type="checkbox" class="sw ovl" checked data-ovl="columns"></div>
+<div class="tr"><label><span class="d" style="background:#22d3ee"></span>Polyhouse</label><input type="checkbox" class="sw ovl" checked data-ovl="polyhouse"></div>
+<div class="tr"><label><span class="d" style="background:#059669"></span>Nursery</label><input type="checkbox" class="sw ovl" checked data-ovl="nursery"></div>
+<div class="tr"><label><span class="d" style="background:#fbbf24"></span>Dimensions</label><input type="checkbox" class="sw" checked data-g="dims"></div>
+</div>
+<div class="sec">Tier 2 Expansion</div>
+<div class="tr"><label><span class="d" style="background:#a78bfa"></span>All Tiers</label><input type="checkbox" class="sw" id="sw-allT2"></div>
+<div id="t2-per-set" style="padding-left:8px"></div>
+<div class="sec">Camera</div>
+<div class="cg">
+<button class="cb" data-v="iso">Isometric</button>
+<button class="cb" data-v="top">Top</button>
+<button class="cb" data-v="front">Front</button>
+<button class="cb" data-v="side">Side</button>
+<button class="cb" data-v="joint">Joint Detail</button>
+<button class="cb" data-v="slope">Slope</button>
+</div>
+<div class="sec">Lighting</div>
+<div class="sld-row"><label>Key Light</label><input type="range" id="sl-key" min="0" max="300" value="180"><span class="sval" id="sv-key">180%</span></div>
+<div class="sld-row"><label>Ambient</label><input type="range" id="sl-amb" min="0" max="200" value="55"><span class="sval" id="sv-amb">55%</span></div>
+<div class="sld-row"><label>Fill Light</label><input type="range" id="sl-fill" min="0" max="200" value="35"><span class="sval" id="sv-fill">35%</span></div>
+<div class="sld-row"><label>Angle</label><input type="range" id="sl-ang" min="0" max="360" value="35"><span class="sval" id="sv-ang">35°</span></div>
+<div class="sld-row"><label>Height</label><input type="range" id="sl-hgt" min="1" max="20" value="9"><span class="sval" id="sv-hgt">9m</span></div>
+<div class="sld-row"><label>Exposure</label><input type="range" id="sl-exp" min="50" max="250" value="115"><span class="sval" id="sv-exp">1.15</span></div>
+<div style="margin-top:8px;font-size:7.5px;color:rgba(255,255,255,0.15)">Drag rotate · Scroll zoom · Right-drag pan · Hover for info</div>
+</div>
+
+<div class="pnl" id="bom">
+<div class="sec" style="margin-top:0">Aluminum – Per Set (13.5m)</div>
+<table class="bt">
+<tr><th>Part</th><th>PN</th><th>Qty</th><th>mm</th></tr>
+<tr><td>Long Beam</td><td>JA15-10-4040L</td><td>2</td><td>6,000</td></tr>
+<tr><td>Short End Beam</td><td>JA15-10-4040L</td><td>2</td><td>3,000</td></tr>
+<tr><td>Center Cross-Beam</td><td>JA15-10-4040L</td><td>1</td><td>1,500</td></tr>
+<tr><td>Legs (vertical)</td><td>JA15-10-4040L</td><td>4*</td><td>3,000</td></tr>
+<tr class="tot"><td colspan="3"><strong>Total Profile</strong></td><td><strong>13,500</strong></td></tr>
+</table>
+<div style="font-size:7.5px;color:rgba(255,255,255,0.2);margin:2px 0 6px">*Paired sets share 2 inner legs → 3 effective/set</div>
+
+<div class="sec">Hardware – Per Set</div>
+<table class="bt">
+<tr><th>Part</th><th>Part Number</th><th>Qty</th></tr>
+<tr><td>90° Inside Bracket</td><td>J38-BK-4040</td><td>10</td></tr>
+<tr><td>T-Slot Nut M6</td><td>10mm slot</td><td>20</td></tr>
+<tr><td>Socket Head Screw</td><td>M8 × 16mm</td><td>20</td></tr>
+<tr><td>End Cap 40×40</td><td>Black PP</td><td>4</td></tr>
+</table>
+
+<div class="sec">Weight – Per Set</div>
+<table class="bt">
+<tr><td>Profile (13.5m × 1.04 kg/m)</td><td></td><td style="font-weight:600">14.04 kg</td></tr>
+<tr><td>Brackets (10 × ~0.045 kg)</td><td></td><td>0.45 kg</td></tr>
+<tr><td>T-Nuts + Screws (40 pcs)</td><td></td><td>0.32 kg</td></tr>
+<tr class="tot"><td colspan="2"><strong>Total / Set</strong></td><td><strong>~14.8 kg</strong></td></tr>
+</table>
+
+<div class="sec">Farm Totals (×520 Sets)</div>
+<table class="bt">
+<tr><td>Alu Profile</td><td></td><td style="color:#4ade80;font-weight:700">7,020 m</td></tr>
+<tr><td>Profile Weight</td><td></td><td style="color:#4ade80;font-weight:700">7,301 kg</td></tr>
+<tr><td>Alu 40×40 Profile</td><td>13.5m</td><td>7,020m</td></tr>
+<tr><td>Brackets J38-BK</td><td>12</td><td>6,240</td></tr>
+<tr><td>T-Slot Nuts M6</td><td></td><td>12,480</td></tr>
+<tr><td>Socket Screws M8</td><td></td><td>12,480</td></tr>
+<tr><td>End Caps</td><td></td><td>3,120</td></tr>
+<tr><td>NFT Pipes 4×2″</td><td></td><td>3,640</td></tr>
+<tr><td>Net Cups 50mm</td><td></td><td>50,960</td></tr>
+</table>
+</div>
+
+<div class="pnl" id="sbar">
+<div class="sps">
+<div class="sp"><div class="v">3,000</div><div class="k">Length mm</div></div>
+<div class="sp"><div class="v">1,500</div><div class="k">Width mm</div></div>
+<div class="sp"><div class="v">1,000</div><div class="k">Height mm</div></div>
+<div class="sp"><div class="v">JA15-10</div><div class="k">Profile</div></div>
+<div class="sp"><div class="v">J38-BK</div><div class="k">Bracket</div></div>
+<div class="sp"><div class="v" style="color:#4ade80">98</div><div class="k">Plants</div></div>
+<div class="sp"><div class="v">16.5m</div><div class="k">Alu/Set</div></div>
+<div class="sp"><div class="v">18.2</div><div class="k">kg/Set</div></div>
+</div>
+</div>
+
+<div id="tip"></div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+/* ═══ CONSTANTS (meters) ═══ */
+const L=3, W=1.5, H=1, P=0.04, Hp=P/2;
+const PIPES=7, HOLES=14, PS=0.20, HS=0.2; // 7 channels at 200mm pitch (100mm gap, optimal airflow)
+const PIPE_Z0=0.15; // first channel Z=150mm (54mm clearance from corner plates)
+const LEGS=[[Hp,Hp],[L/2,Hp],[L-Hp,Hp],[Hp,W-Hp],[L/2,W-Hp],[L-Hp,W-Hp]]; // 6 legs
+const HOLE_EDGE=0.20; // 200mm edge clearance — centered: (3000 - 13×200) / 2 = 200mm each side
+const PW=0.10, PH=0.055, SL=0.01, SD=SL*L; // 100×55mm NFT channel
+const RH=H-Hp; // rail height
+const CTR=new THREE.Vector3(L/2,H/2,W/2);
+
+// Bracket J38-BK-4040 dims (meters)
+const BK_S=0.037, BK_D=0.0075;
+// T-Nut dims
+const TN_L=0.020, TN_W=0.0105, TN_H=0.0098;
+// Screw dims
+const SC_R=0.004, SC_HL=0.008, SC_HR=0.0065, SC_SL=0.016;
+// End cap
+const EC_T=0.003;
+
+/* ═══ RENDERER ═══ */
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x06060c);
+const cam=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,0.003,150);
+cam.position.set(4.5,3.2,4.5);
+const ren=new THREE.WebGLRenderer({antialias:true});
+ren.setSize(innerWidth,innerHeight);
+ren.setPixelRatio(Math.min(devicePixelRatio,2));
+ren.shadowMap.enabled=true;
+ren.shadowMap.type=THREE.PCFSoftShadowMap;
+ren.toneMapping=THREE.ACESFilmicToneMapping;
+ren.toneMappingExposure=1.15;
+document.body.appendChild(ren.domElement);
+const lR=new CSS2DRenderer();
+lR.setSize(innerWidth,innerHeight);
+lR.domElement.style.position='fixed';
+lR.domElement.style.top='0';
+lR.domElement.style.left='0';
+lR.domElement.style.pointerEvents='none';
+document.body.appendChild(lR.domElement);
+const ctl=new OrbitControls(cam,ren.domElement);
+ctl.enableDamping=true;ctl.dampingFactor=0.06;
+ctl.target.copy(CTR);ctl.update();
+
+/* ═══ LIGHTING ═══ */
+const amb=new THREE.AmbientLight(0xc0d0e8,0.55);
+scene.add(amb);
+const kl=new THREE.DirectionalLight(0xfff8f0,1.8);
+kl.position.set(6,9,4);kl.castShadow=true;
+kl.shadow.mapSize.set(2048,2048);
+const shc=kl.shadow.camera;shc.left=shc.bottom=-5;shc.right=shc.top=5;
+scene.add(kl);
+const fl=new THREE.DirectionalLight(0xc8ddff,0.35);fl.position.set(-4,5,-3);scene.add(fl);
+const rl=new THREE.DirectionalLight(0x6688ff,0.2);rl.position.set(0,3,-6);scene.add(rl);
+const KL_RADIUS=7.2; // orbit radius for key light angle
+
+/* ═══ MATERIALS ═══ */
+const mAlu=new THREE.MeshStandardMaterial({color:0xd4d8dc,metalness:0.82,roughness:0.15});
+const mSlot=new THREE.MeshBasicMaterial({color:0x22222e}); // dark slot groove
+const mBrk=new THREE.MeshStandardMaterial({color:0x8a8580,metalness:0.65,roughness:0.35}); // die-cast bracket
+const mTNut=new THREE.MeshStandardMaterial({color:0xb0b5bc,metalness:0.8,roughness:0.25});
+const mScrew=new THREE.MeshStandardMaterial({color:0xc0c5cc,metalness:0.85,roughness:0.2});
+const mCap=new THREE.MeshStandardMaterial({color:0x1a1a1a,metalness:0.1,roughness:0.7}); // black PP end cap
+const mAluG=new THREE.MeshStandardMaterial({color:0xd4d8dc,metalness:0.82,roughness:0.15,transparent:true,opacity:0.22});
+const mPipe=new THREE.MeshStandardMaterial({color:0xeef0f2,metalness:0.04,roughness:0.4});
+const mPCap=new THREE.MeshStandardMaterial({color:0xc0c4cc,metalness:0.15,roughness:0.3});
+const mCup=new THREE.MeshStandardMaterial({color:0x15803d,metalness:0.08,roughness:0.5,transparent:true,opacity:0.8});
+const mCupR=new THREE.MeshStandardMaterial({color:0x166534,metalness:0.1,roughness:0.35});
+const mSup=new THREE.MeshStandardMaterial({color:0x16a34a,metalness:0.12,roughness:0.3});
+const mCol=new THREE.MeshStandardMaterial({color:0x1e3a8a,metalness:0.12,roughness:0.3});
+const mHole=new THREE.MeshBasicMaterial({color:0x08080e});
+const mWat=new THREE.MeshStandardMaterial({color:0x38bdf8,metalness:0.4,roughness:0.06,transparent:true,opacity:0.25,side:THREE.DoubleSide});
+const mDim=new THREE.LineBasicMaterial({color:0xfbbf24});
+
+/* ═══ GROUPS ═══ */
+const G={};
+['frame','brackets','hardware','endcaps','pipes','cups','supply','collect','water','expansion','dims'].forEach(n=>{G[n]=new THREE.Group();scene.add(G[n])});
+G.expansion.visible=false;
+
+/* ═══ SHARED GEOMETRIES ═══ */
+// Bracket: right-triangle prism 37×37×7.5mm
+const bkShape=new THREE.Shape();
+bkShape.moveTo(0,0);bkShape.lineTo(BK_S,0);bkShape.lineTo(0,BK_S);bkShape.closePath();
+const bkGeo=new THREE.ExtrudeGeometry(bkShape,{depth:BK_D,bevelEnabled:false});
+bkGeo.translate(0,0,-BK_D/2);
+
+// T-Nut
+const tnGeo=new THREE.BoxGeometry(TN_L,TN_H,TN_W);
+// Screw head
+const shGeo=new THREE.CylinderGeometry(SC_HR,SC_HR,SC_HL,8);
+// Screw shaft
+const ssGeo=new THREE.CylinderGeometry(SC_R,SC_R,SC_SL,8);
+// Hex socket in head
+const hexGeo=new THREE.CylinderGeometry(0.003,0.003,0.004,6);
+// End cap
+const ecGeo=new THREE.BoxGeometry(P+0.002,P+0.002,EC_T);
+
+/* ═══ HELPERS ═══ */
+function addProfile(grp,len,axis,x,y,z){
+  // Main body
+  const dims=axis==='x'?[len,P,P]:axis==='y'?[P,len,P]:[P,P,len];
+  const m=new THREE.Mesh(new THREE.BoxGeometry(...dims),mAlu);
+  m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;
+  grp.add(m);
+  // T-slot grooves (dark lines on 4 faces)
+  const gw=0.010, gh=0.002; // 10mm slot width, 2mm visual depth
+  if(axis==='x'){
+    // top/bottom slots
+    [y+Hp+0.001,y-Hp-0.001].forEach(gy=>{
+      const g=new THREE.Mesh(new THREE.BoxGeometry(len*0.98,0.002,gw),mSlot);
+      g.position.set(x,gy,z);grp.add(g);
+    });
+    // front/back slots
+    [z+Hp+0.001,z-Hp-0.001].forEach(gz=>{
+      const g=new THREE.Mesh(new THREE.BoxGeometry(len*0.98,gw,0.002),mSlot);
+      g.position.set(x,y,gz);grp.add(g);
+    });
+  } else if(axis==='y'){
+    [x+Hp+0.001,x-Hp-0.001].forEach(gx=>{
+      const g=new THREE.Mesh(new THREE.BoxGeometry(0.002,len*0.98,gw),mSlot);
+      g.position.set(gx,y,z);grp.add(g);
+    });
+    [z+Hp+0.001,z-Hp-0.001].forEach(gz=>{
+      const g=new THREE.Mesh(new THREE.BoxGeometry(gw,len*0.98,0.002),mSlot);
+      g.position.set(x,y,gz);grp.add(g);
+    });
+  } else {
+    [x+Hp+0.001,x-Hp-0.001].forEach(gx=>{
+      const g=new THREE.Mesh(new THREE.BoxGeometry(0.002,gw,len*0.98),mSlot);
+      g.position.set(gx,y,z);grp.add(g);
+    });
+    [y+Hp+0.001,y-Hp-0.001].forEach(gy=>{
+      const g=new THREE.Mesh(new THREE.BoxGeometry(gw,0.002,len*0.98),mSlot);
+      g.position.set(x,gy,z);grp.add(g);
+    });
+  }
+}
+
+// Place a bracket + 2 T-nuts + 2 screws at a 90° joint
+function addJoint(pos, rotY, rotZ, flipX, flipY){
+  // Bracket
+  const bk=new THREE.Mesh(bkGeo,mBrk);
+  bk.position.set(...pos);
+  if(rotY) bk.rotation.y=rotY;
+  if(rotZ) bk.rotation.z=rotZ;
+  if(flipX) bk.scale.x=-1;
+  if(flipY) bk.scale.y=-1;
+  bk.castShadow=true;
+  G.brackets.add(bk);
+
+  // Simplified hardware placement near the bracket
+  const bkPos=new THREE.Vector3(...pos);
+
+  // Two T-nuts (positioned on the profiles near the bracket)
+  const tn1=new THREE.Mesh(tnGeo,mTNut);
+  const tn2=new THREE.Mesh(tnGeo,mTNut);
+  tn1.position.copy(bkPos).add(new THREE.Vector3(0.012,0.002,0));
+  tn2.position.copy(bkPos).add(new THREE.Vector3(0.002,0.012,0));
+  if(rotY){
+    tn1.rotation.y=rotY;tn2.rotation.y=rotY;
+  }
+  G.hardware.add(tn1,tn2);
+
+  // Two socket head screws
+  const sw1=new THREE.Mesh(shGeo,mScrew);
+  const sw2=new THREE.Mesh(shGeo,mScrew);
+  sw1.position.copy(tn1.position).add(new THREE.Vector3(0,0,BK_D/2+0.005));
+  sw2.position.copy(tn2.position).add(new THREE.Vector3(0,0,BK_D/2+0.005));
+  sw1.rotation.x=Math.PI/2;sw2.rotation.x=Math.PI/2;
+  G.hardware.add(sw1,sw2);
+
+  // Hex sockets
+  const hx1=new THREE.Mesh(hexGeo,mSlot);
+  hx1.position.copy(sw1.position).add(new THREE.Vector3(0,0,0.003));
+  hx1.rotation.x=Math.PI/2;
+  const hx2=new THREE.Mesh(hexGeo,mSlot);
+  hx2.position.copy(sw2.position).add(new THREE.Vector3(0,0,0.003));
+  hx2.rotation.x=Math.PI/2;
+  G.hardware.add(hx1,hx2);
+}
+
+function addEndCap(x,y,z,axis){
+  const c=new THREE.Mesh(ecGeo,mCap);
+  c.position.set(x,y,z);
+  if(axis==='x') c.rotation.y=Math.PI/2;
+  if(axis==='y') c.rotation.x=Math.PI/2;
+  c.castShadow=true;
+  G.endcaps.add(c);
+}
+
+function lbl(text,cls='dl'){
+  const el=document.createElement('div');el.className=cls;el.textContent=text;
+  return new CSS2DObject(el);
+}
+
+function dimL(a,b,text,off){
+  const pts=[new THREE.Vector3(...a),new THREE.Vector3(...b)];
+  G.dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),mDim));
+  [a,b].forEach(p=>{
+    const m=new THREE.Mesh(new THREE.SphereGeometry(0.005,6,6),new THREE.MeshBasicMaterial({color:0xfbbf24}));
+    m.position.set(...p);G.dims.add(m);
+  });
+  const l=lbl(text);
+  l.position.set(...a.map((v,i)=>(v+b[i])/2+(off?.[i]||0)));
+  G.dims.add(l);
+}
+
+/* ═══ BUILD FRAME ═══ */
+function buildFrame(){
+  // 6 Legs (4 corners + 2 center)
+  LEGS.forEach(([x,z])=>addProfile(G.frame,H,'y',x,H/2,z));
+  // Top: 2 long beams (3,000mm each)
+  addProfile(G.frame,L,'x',L/2,RH,Hp);
+  addProfile(G.frame,L,'x',L/2,RH,W-Hp);
+  // Top: 2 short end beams (1,500mm each)
+  addProfile(G.frame,W,'z',Hp,RH,W/2);
+  addProfile(G.frame,W,'z',L-Hp,RH,W/2);
+  // Center cross-beam (1,500mm)
+  addProfile(G.frame,W,'z',L/2,RH,W/2);
+}
+
+/* ═══ BUILD BRACKETS AT JOINTS (12 total: 2 per leg) ═══ */
+function buildBrackets(){
+  // Front-left corner: leg↔long beam + leg↔end beam
+  addJoint([Hp+P/2, RH-BK_S/2, Hp], 0, 0, false, false);
+  addJoint([Hp, RH-BK_S/2, Hp+P/2], Math.PI/2, 0, false, false);
+  // Front-right corner
+  addJoint([L-Hp-P/2, RH-BK_S/2, Hp], 0, 0, true, false);
+  addJoint([L-Hp, RH-BK_S/2, Hp+P/2], Math.PI/2, 0, false, false);
+  // Back-left corner
+  addJoint([Hp+P/2, RH-BK_S/2, W-Hp], 0, 0, false, false);
+  addJoint([Hp, RH-BK_S/2, W-Hp-P/2], -Math.PI/2, 0, false, false);
+  // Back-right corner
+  addJoint([L-Hp-P/2, RH-BK_S/2, W-Hp], 0, 0, true, false);
+  addJoint([L-Hp, RH-BK_S/2, W-Hp-P/2], -Math.PI/2, 0, false, false);
+  // Front-center leg: leg↔long beam + leg↔center cross-beam
+  addJoint([L/2+P/2, RH-BK_S/2, Hp], 0, 0, false, false);
+  addJoint([L/2, RH-BK_S/2, Hp+P/2], Math.PI/2, 0, false, false);
+  // Back-center leg: leg↔long beam + leg↔center cross-beam
+  addJoint([L/2-P/2, RH-BK_S/2, W-Hp], 0, 0, true, false);
+  addJoint([L/2, RH-BK_S/2, W-Hp-P/2], -Math.PI/2, 0, false, false);
+}
+
+/* ═══ END CAPS (6 leg bottoms) ═══ */
+function buildEndCaps(){
+  LEGS.forEach(([x,z])=>addEndCap(x,EC_T/2,z,'y'));
+}
+
+/* ═══ NFT PIPES ═══ */
+function buildPipes(){
+  const by=RH+Hp+0.003;
+  for(let i=0;i<PIPES;i++){
+    const z=PIPE_Z0+i*PS;
+    const my=by+PH/2; // pipe center y (no offset — rotation handles slope)
+    const pg=new THREE.BoxGeometry(L,PH,PW);
+    const p=new THREE.Mesh(pg,mPipe);
+    p.position.set(L/2,my,z);p.rotation.z=-Math.atan(SL); // negative = inlet HIGH, outlet LOW
+    p.castShadow=true;p.receiveShadow=true;G.pipes.add(p);
+    // End caps (positioned at sloped pipe ends)
+    const inletY=by+PH/2+SD/2; // higher end (inlet, x=0)
+    const outletY=by+PH/2-SD/2; // lower end (outlet, x=L)
+    const cg=new THREE.BoxGeometry(0.005,PH+0.004,PW+0.004);
+    const cl=new THREE.Mesh(cg,mPCap);cl.position.set(0,inletY,z);G.pipes.add(cl);
+    const cr=new THREE.Mesh(cg,mPCap);cr.position.set(L,outletY,z);G.pipes.add(cr);
+    // Spout (drainage at outlet end)
+    const sg=new THREE.CylinderGeometry(0.009,0.009,0.04,8);
+    const sp=new THREE.Mesh(sg,mPCap);sp.position.set(L+0.007,outletY-0.02,z);G.pipes.add(sp);
+    // Holes (14 holes, 200mm spacing, 150mm edge clearance)
+    const hg=new THREE.CylinderGeometry(0.024,0.024,0.004,12);
+    for(let j=0;j<HOLES;j++){
+      const hx=HOLE_EDGE+j*HS;
+      const hy=by+PH+SL*(L/2-hx); // follows pipe top surface slope
+      G.pipes.add(new THREE.Mesh(hg,mHole).translateX(hx).translateY(hy).translateZ(z));
+    }
+    // Water film
+    const wg=new THREE.PlaneGeometry(L-0.02,PW*0.65);
+    const wm=new THREE.Mesh(wg,mWat);
+    wm.rotation.x=-Math.PI/2;wm.rotation.z=-Math.atan(SL); // matches pipe slope
+    wm.position.set(L/2,by+0.005,z);G.water.add(wm);
+  }
+}
+
+/* ═══ NET CUPS ═══ */
+function buildCups(){
+  const by=RH+Hp+0.003;
+  const cg=new THREE.CylinderGeometry(0.024,0.017,0.035,10);
+  const rg=new THREE.TorusGeometry(0.026,0.0025,6,12);
+  for(let i=0;i<PIPES;i++){
+    const z=PIPE_Z0+i*PS;
+    for(let j=0;j<HOLES;j++){
+      const hx=HOLE_EDGE+j*HS;
+      const hy=by+PH+SL*(L/2-hx);
+      const c=new THREE.Mesh(cg,mCup);c.position.set(hx,hy+0.014,z);c.castShadow=true;G.cups.add(c);
+      const r=new THREE.Mesh(rg,mCupR);r.rotation.x=Math.PI/2;r.position.set(hx,hy+0.03,z);G.cups.add(r);
+    }
+  }
+}
+
+/* ═══ SUPPLY PIPE ═══ */
+function buildSupply(){
+  const by=RH+Hp+0.003;const hY=by+PH+0.05;
+  const hg=new THREE.CylinderGeometry(0.015,0.015,W,12);
+  const h=new THREE.Mesh(hg,mSup);h.rotation.x=Math.PI/2;h.position.set(-0.08,hY,W/2);h.castShadow=true;G.supply.add(h);
+  for(let i=0;i<PIPES;i++){
+    const z=PIPE_Z0+i*PS;
+    const bg=new THREE.CylinderGeometry(0.007,0.007,0.1,8);
+    const br=new THREE.Mesh(bg,mSup);br.rotation.z=Math.PI/2;br.position.set(-0.03,hY,z);G.supply.add(br);
+    G.supply.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mSup).translateX(-0.08).translateY(hY).translateZ(z));
+    const dh=0.05;const dg=new THREE.CylinderGeometry(0.007,0.007,dh,8);
+    const dr=new THREE.Mesh(dg,mSup);dr.position.set(0.02,hY-dh/2,z);G.supply.add(dr);
+  }
+}
+
+/* ═══ COLLECTION PIPE ═══ */
+function buildCollect(){
+  const by=RH+Hp+0.003;const hY=by+PH/2-SD-0.05;
+  const hg=new THREE.CylinderGeometry(0.015,0.015,W,12);
+  const h=new THREE.Mesh(hg,mCol);h.rotation.x=Math.PI/2;h.position.set(L+0.08,hY,W/2);h.castShadow=true;G.collect.add(h);
+  for(let i=0;i<PIPES;i++){
+    const z=PIPE_Z0+i*PS;
+    const bg=new THREE.CylinderGeometry(0.007,0.007,0.08,8);
+    const br=new THREE.Mesh(bg,mCol);br.rotation.z=Math.PI/2;br.position.set(L+0.04,hY,z);G.collect.add(br);
+    G.collect.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mCol).translateX(L+0.08).translateY(hY).translateZ(z));
+  }
+}
+
+/* ═══ EXPANSION PREVIEW — FULL TIER 2 ═══ */
+const T2={}; // Tier 2 sub-groups (for expansion toggle)
+function buildExpansion(){
+  /* Tier spacing: 600mm gives ~420mm clearance above Tier 1 cups for plant growth */
+  const eH=0.6; // leg extension height (meters)
+  const t2=RH+eH; // Tier 2 beam rail height
+  const t2by=t2+Hp+0.003; // Tier 2 pipe base y
+
+  // Create Tier 2 sub-groups INSIDE their respective component groups
+  T2.frame=new THREE.Group(); G.frame.add(T2.frame);
+  T2.brackets=new THREE.Group(); G.brackets.add(T2.brackets);
+  T2.pipes=new THREE.Group(); G.pipes.add(T2.pipes);
+  T2.cups=new THREE.Group(); G.cups.add(T2.cups);
+  T2.supply=new THREE.Group(); G.supply.add(T2.supply);
+  T2.collect=new THREE.Group(); G.collect.add(T2.collect);
+  T2.water=new THREE.Group(); G.water.add(T2.water);
+  // All start hidden (expansion toggle is off by default)
+  Object.values(T2).forEach(g=>g.visible=false);
+  G.expansion.visible=false;
+
+  const mJP=new THREE.MeshStandardMaterial({color:0xf59e0b,metalness:0.6,roughness:0.3,transparent:true,opacity:0.65});
+
+  // ── Extension Legs + Joining Plates (6 legs) ──
+  LEGS.forEach(([x,z])=>{
+    addProfile(T2.frame,eH,'y',x,RH+eH/2,z);
+    const jp=new THREE.Mesh(new THREE.BoxGeometry(P*1.3,P*0.6,P*1.3),mJP);
+    jp.position.set(x,RH,z);G.expansion.add(jp);
+  });
+
+  // ── Tier 2 Frame Beams → T2.frame ──
+  addProfile(T2.frame,L,'x',L/2,t2,Hp);
+  addProfile(T2.frame,L,'x',L/2,t2,W-Hp);
+  addProfile(T2.frame,W,'z',Hp,t2,W/2);
+  addProfile(T2.frame,W,'z',L-Hp,t2,W/2);
+  addProfile(T2.frame,W,'z',L/2,t2,W/2);
+
+  // ── Tier 2 Brackets → T2.brackets ──
+  [[Hp+P/2,Hp],[L-Hp-P/2,Hp],[Hp+P/2,W-Hp],[L-Hp-P/2,W-Hp]].forEach(([bx,bz])=>{
+    const bk=new THREE.Mesh(bkGeo,mBrk);
+    bk.position.set(bx,t2-BK_S/2,bz);bk.castShadow=true;T2.brackets.add(bk);
+  });
+  [[Hp,Hp+P/2],[L-Hp,Hp+P/2],[Hp,W-Hp-P/2],[L-Hp,W-Hp-P/2]].forEach(([bx,bz],i)=>{
+    const bk=new THREE.Mesh(bkGeo,mBrk);
+    bk.position.set(bx,t2-BK_S/2,bz);bk.rotation.y=(i<2)?Math.PI/2:-Math.PI/2;
+    bk.castShadow=true;T2.brackets.add(bk);
+  });
+
+  // ── Tier 2 NFT Pipes → T2.pipes, Cups → T2.cups, Water → T2.water ──
+  const hg2=new THREE.CylinderGeometry(0.024,0.024,0.004,12);
+  const cg2=new THREE.CylinderGeometry(0.024,0.017,0.035,10);
+  const rg2=new THREE.TorusGeometry(0.026,0.0025,6,12);
+  for(let i=0;i<PIPES;i++){
+    const z=PIPE_Z0+i*PS;
+    const my=t2by+PH/2;
+    // Pipe body
+    const p=new THREE.Mesh(new THREE.BoxGeometry(L,PH,PW),mPipe);
+    p.position.set(L/2,my,z);p.rotation.z=-Math.atan(SL);
+    p.castShadow=true;p.receiveShadow=true;T2.pipes.add(p);
+    // Pipe end caps
+    const inY=t2by+PH/2+SD/2, outY=t2by+PH/2-SD/2;
+    const ecg=new THREE.BoxGeometry(0.005,PH+0.004,PW+0.004);
+    T2.pipes.add(new THREE.Mesh(ecg,mPCap).translateX(0).translateY(inY).translateZ(z));
+    T2.pipes.add(new THREE.Mesh(ecg,mPCap).translateX(L).translateY(outY).translateZ(z));
+    // Spout
+    T2.pipes.add(new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,0.04,8),mPCap).translateX(L+0.007).translateY(outY-0.02).translateZ(z));
+    // 14 Holes + Net Cups
+    for(let j=0;j<HOLES;j++){
+      const hx=HOLE_EDGE+j*HS;
+      const hy=t2by+PH+SL*(L/2-hx);
+      T2.pipes.add(new THREE.Mesh(hg2,mHole).translateX(hx).translateY(hy).translateZ(z));
+      const c=new THREE.Mesh(cg2,mCup);c.position.set(hx,hy+0.014,z);T2.cups.add(c);
+      const r=new THREE.Mesh(rg2,mCupR);r.rotation.x=Math.PI/2;r.position.set(hx,hy+0.03,z);T2.cups.add(r);
+    }
+    // Water film
+    const wg=new THREE.PlaneGeometry(L-0.02,PW*0.65);
+    const wm=new THREE.Mesh(wg,mWat);
+    wm.rotation.x=-Math.PI/2;wm.rotation.z=-Math.atan(SL);
+    wm.position.set(L/2,t2by+0.005,z);T2.water.add(wm);
+  }
+
+  // ── Tier 2 Supply Header → T2.supply ──
+  const t2sY=t2by+PH+0.05;
+  const shdr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,W,12),mSup);
+  shdr.rotation.x=Math.PI/2;shdr.position.set(-0.08,t2sY,W/2);T2.supply.add(shdr);
+  for(let i=0;i<PIPES;i++){
+    const z=PIPE_Z0+i*PS;
+    const br=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.1,8),mSup);
+    br.rotation.z=Math.PI/2;br.position.set(-0.03,t2sY,z);T2.supply.add(br);
+    T2.supply.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mSup).translateX(-0.08).translateY(t2sY).translateZ(z));
+    const dr=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.05,8),mSup);
+    dr.position.set(0.02,t2sY-0.025,z);T2.supply.add(dr);
+  }
+
+  // ── Tier 2 Collection Header → T2.collect ──
+  const t2cY=t2by+PH/2-SD/2-0.05;
+  const chdr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,W,12),mCol);
+  chdr.rotation.x=Math.PI/2;chdr.position.set(L+0.08,t2cY,W/2);T2.collect.add(chdr);
+  for(let i=0;i<PIPES;i++){
+    const z=PIPE_Z0+i*PS;
+    const br=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.08,8),mCol);
+    br.rotation.z=Math.PI/2;br.position.set(L+0.04,t2cY,z);T2.collect.add(br);
+    T2.collect.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mCol).translateX(L+0.08).translateY(t2cY).translateZ(z));
+  }
+
+  // ── Labels → G.expansion ──
+  const l1=lbl('TIER 2 — Full NFT System','el');
+  l1.position.set(L/2,t2+0.12,W/2);G.expansion.add(l1);
+  const l2=lbl('600mm tier spacing · 420mm plant clearance','el');
+  l2.position.set(L/2,RH+eH/2,W+0.1);G.expansion.add(l2);
+  // Clearance dimension line
+  const clrY1=RH+Hp+0.003+PH+0.03;
+  const clrY2=t2-Hp;
+  const clrPts=[new THREE.Vector3(-0.25,clrY1,W/2),new THREE.Vector3(-0.25,clrY2,W/2)];
+  G.expansion.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(clrPts),new THREE.LineBasicMaterial({color:0xa78bfa})));
+  const cl3=lbl('Plant Clearance','el');
+  cl3.position.set(-0.3,(clrY1+clrY2)/2,W/2);G.expansion.add(cl3);
+}
+
+/* ═══ DIMENSIONS ═══ */
+function buildDims(){
+  dimL([0,-0.1,-0.14],[L,-0.1,-0.14],'3,000 mm');
+  dimL([-0.14,-0.1,0],[-0.14,-0.1,W],'1,500 mm');
+  dimL([-0.2,0,-0.06],[-0.2,H,-0.06],'1,000 mm');
+  const by=RH+Hp+0.003;
+  dimL([0,by+PH+0.02,-0.1],[L,by+PH+0.02-SD,-0.1],'30 mm drop (1%)',[0,0.025,0]);
+  const pY=by+PH+0.06;
+  dimL([L/2,pY,PIPE_Z0],[L/2,pY,PIPE_Z0+PS],'150 mm');
+  dimL([HOLE_EDGE,pY+0.04,-0.05],[HOLE_EDGE+HS,pY+0.04,-0.05],'200 mm');
+  // Labels
+  const p1=lbl('40×40 T-Slot (JA15-10-4040L)');
+  p1.position.set(L+0.12,H/2,Hp);G.dims.add(p1);
+  const p2=lbl('No Bottom Frame — Table Style');
+  p2.position.set(L/2,0.03,W+0.08);G.dims.add(p2);
+const p3=lbl('Center Cross-Beam');
+  p3.position.set(L/2,RH+0.05,W/2);G.dims.add(p3);
+}
+
+/* ═══ ASSEMBLE TEMPLATE SET (at origin) ═══ */
+buildFrame();buildBrackets();buildEndCaps();
+buildPipes();buildCups();buildSupply();buildCollect();
+buildExpansion();buildDims();
+
+/* ═══ SNAPSHOT TEMPLATE (before any cloning) ═══ */
+const TMPL={};
+for(const[key,group]of Object.entries(G)){
+  TMPL[key]=[...group.children];
+}
+
+/* ═══ DYNAMIC LAYOUT SYSTEM ═══ */
+const V={}; // camera presets — populated by rebuildLayout
+const SET_GAP=0.40; // 400mm gap between sets for plumbing
+let layoutClones=[]; // [{label, wrappers:{key:group}, t2Visible:bool}]
+let layoutSceneEls=[]; // scene-level elements (walkway, labels, ground)
+
+function clearLayout(){
+  layoutClones.forEach(c=>{
+    if(c.wrappers) Object.entries(c.wrappers).forEach(([key,w])=>G[key].remove(w));
+  });
+  layoutClones=[];
+  layoutSceneEls.forEach(el=>scene.remove(el));
+  layoutSceneEls=[];
+}
+
+function addSceneEl(el){ layoutSceneEls.push(el); scene.add(el); }
+
+function rebuildLayout(){
+  clearLayout();
+
+  // ── NHB-COMPLIANT POLYHOUSE: Option B (48m × 104m) ──
+  const PH_L=104, PH_W=48;
+  const BLOCKS=9, SPC=26;
+  const RW=1.2, BG=0.8, BA=1.0;
+  const GRP=[2,3,3,3,3,3,3,3,3];
+
+  // ── Compute X positions for 26 sets ──
+  const setX=[], blueX=[];
+  let cx=1.5;
+  GRP.forEach((n,gi)=>{
+    for(let i=0;i<n;i++){ setX.push(cx); cx+=L; if(i<n-1) cx+=SET_GAP; }
+    if(gi<GRP.length-1){ blueX.push(cx+BA/2); cx+=BA; }
+  });
+  const setsEndX=cx;
+
+  // ── Compute Z positions for 9 blocks ──
+  const PER_Z=+((PH_W-(BLOCKS*(W+RW+W)+(BLOCKS-1)*BG))/2).toFixed(2);
+  const blkZ=[];
+  {let z=PER_Z; for(let b=0;b<BLOCKS;b++){ blkZ.push(z); z+=W+RW+W; if(b<BLOCKS-1) z+=BG; }}
+
+  // ── Generate all set positions ──
+  const positions=[];
+  for(let b=0;b<BLOCKS;b++){
+    for(let s=0;s<SPC;s++){
+      positions.push({dx:setX[s], dz:blkZ[b],         label:(b+1)+'A-'+(s+1), row:'A'});
+      positions.push({dx:setX[s], dz:blkZ[b]+W+RW,    label:(b+1)+'B-'+(s+1), row:'B'});
+    }
+  }
+
+  // ── Hybrid rendering: Block 1 detailed, Blocks 2-9 simplified ──
+  const cloneKeys=Object.keys(G).filter(k=>k!=='dims');
+  const baseX=positions[0].dx, baseZ=positions[0].dz;
+
+  // Position all G groups at the first set location
+  for(const[key,grp] of Object.entries(G)) grp.position.set(baseX,0,baseZ);
+
+  // Block 1 = first 52 positions (26 sets × 2 rows), get full detail clones
+  // Blocks 2-9 = remaining positions, get lightweight boxes
+  const DETAIL_COUNT=SPC*2; // 52 positions for Block 1
+  const setGeo=new THREE.BoxGeometry(L-0.08,H*0.18,W-0.08);
+  const bCols=[0x1e3a5f,0x1a5040,0x4a2a5a,0x5a3a2a,0x2a4a5a,0x3a5a2a,0x5a2a4a,0x2a3a5a,0x4a5a2a];
+
+  positions.forEach((pos,idx)=>{
+    const blockIdx=Math.floor(idx/(SPC*2));
+    if(idx===0){
+      layoutClones.push({...pos,wrappers:null,isOriginal:true,t2Visible:false});
+      return;
+    }
+    if(idx<DETAIL_COUNT){
+      // Block 1: full detail clone
+      const wrappers={};
+      for(const key of cloneKeys){
+        if(!G[key]||!TMPL[key]) continue;
+        const w=new THREE.Group();
+        w.position.set(pos.dx-baseX, 0, pos.dz-baseZ);
+        TMPL[key].forEach(child=>w.add(child.clone()));
+        G[key].add(w);
+        wrappers[key]=w;
+      }
+      layoutClones.push({...pos,wrappers,isOriginal:false,t2Visible:false});
+    } else {
+      // Blocks 2-9: lightweight colored box
+      const mat=new THREE.MeshStandardMaterial({color:bCols[blockIdx],metalness:0.2,roughness:0.6});
+      const m=new THREE.Mesh(setGeo,mat);
+      m.position.set(pos.dx+L/2, H*0.09, pos.dz+W/2);
+      m.castShadow=true;addSceneEl(m);
+      layoutClones.push({...pos,wrappers:null,isOriginal:false,t2Visible:false});
+    }
+  });
+
+  // ── Scene center ──
+  const lctr=new THREE.Vector3(PH_L/2,H/2,PH_W/2);
+
+  // ── Ground ──
+  const gnd=new THREE.Mesh(new THREE.PlaneGeometry(PH_L+16,PH_W+16),
+    new THREE.MeshStandardMaterial({color:0x0a0a12,metalness:0.2,roughness:0.85}));
+  gnd.rotation.x=-Math.PI/2;gnd.position.set(lctr.x,-0.005,lctr.z);gnd.receiveShadow=true;addSceneEl(gnd);
+  const grid=new THREE.GridHelper(PH_L+16,Math.round(PH_L/2),0x16162a,0x10101c);
+  grid.position.set(lctr.x,0,lctr.z);addSceneEl(grid);
+
+  // ── Polyhouse outline (cyan rectangle) ──
+  const phPts=[new THREE.Vector3(0,0.02,0),new THREE.Vector3(PH_L,0.02,0),
+    new THREE.Vector3(PH_L,0.02,PH_W),new THREE.Vector3(0,0.02,PH_W),new THREE.Vector3(0,0.02,0)];
+  const phLine=new THREE.Line(new THREE.BufferGeometry().setFromPoints(phPts),
+    new THREE.LineBasicMaterial({color:0x22d3ee}));
+  phLine.userData.ovlType='polyhouse';addSceneEl(phLine);
+  const phl=lbl('POLYHOUSE 48m \u00d7 104m (4,992 sq.m = 1.23 acres)','el');
+  phl.position.set(PH_L/2,0.1,-1.5);phl.userData.ovlType='polyhouse';addSceneEl(phl);
+
+  // ── Red walkways (within each block, between Row A and Row B) ──
+  const wkMat=new THREE.MeshStandardMaterial({color:0x991b1b,metalness:0.1,roughness:0.7,transparent:true,opacity:0.2});
+  for(let b=0;b<BLOCKS;b++){
+    const wk=new THREE.Mesh(new THREE.PlaneGeometry(setsEndX-setX[0]+0.2,RW-0.04),wkMat);
+    wk.rotation.x=-Math.PI/2;wk.position.set((setX[0]+setsEndX)/2,-0.001,blkZ[b]+W+RW/2);
+    wk.userData.ovlType='walkways';addSceneEl(wk);
+  }
+
+  // ── Block service gaps (between blocks) ──
+  const gapMat=new THREE.MeshStandardMaterial({color:0x4a5568,metalness:0.1,roughness:0.8,transparent:true,opacity:0.08});
+  for(let b=0;b<BLOCKS-1;b++){
+    const gz=blkZ[b]+W+RW+W+BG/2;
+    const gap=new THREE.Mesh(new THREE.PlaneGeometry(setsEndX-setX[0]+0.2,BG-0.04),gapMat);
+    gap.rotation.x=-Math.PI/2;gap.position.set((setX[0]+setsEndX)/2,-0.001,gz);
+    gap.userData.ovlType='gaps';addSceneEl(gap);
+  }
+
+  // ── Blue aisles (between set groups, along length) ──
+  const blueMat=new THREE.MeshStandardMaterial({color:0x1e40af,metalness:0.1,roughness:0.7,transparent:true,opacity:0.15});
+  const blkH=blkZ[BLOCKS-1]+W+RW+W-blkZ[0];
+  blueX.forEach(bx=>{
+    const ba=new THREE.Mesh(new THREE.PlaneGeometry(BA-0.04,blkH+0.2),blueMat);
+    ba.rotation.x=-Math.PI/2;ba.position.set(bx,-0.001,blkZ[0]+blkH/2);
+    ba.userData.ovlType='blueAisles';addSceneEl(ba);
+  });
+
+  // ── COLUMNS: Only at SAFE positions (never on sets or walkways) ──
+  const colGeo=new THREE.CylinderGeometry(0.06,0.06,0.35,6);
+  const colMat=new THREE.MeshStandardMaterial({color:0xfbbf24,metalness:0.5,roughness:0.3});
+  // Safe Z positions: block gap centers + polyhouse perimeter
+  const safeZ=[0, PH_W];
+  for(let b=0;b<BLOCKS-1;b++) safeZ.push(blkZ[b]+W+RW+W+BG/2);
+  // Safe X positions: blue aisle centers + polyhouse perimeter + nursery area
+  const safeX=[0, ...blueX, PH_L];
+  // Internal columns: blue aisle × block gap intersections
+  const placed=new Set();
+  safeX.forEach(x=>{
+    safeZ.forEach(z=>{
+      const k=Math.round(x*10)+'_'+Math.round(z*10);
+      if(placed.has(k)) return; placed.add(k);
+      const c=new THREE.Mesh(colGeo,colMat);c.position.set(x,0.175,z);
+      c.userData.ovlType='columns';addSceneEl(c);
+    });
+  });
+  // Perimeter wall columns (along polyhouse boundary, every 4m)
+  for(let x=4;x<PH_L;x+=4){
+    [0,PH_W].forEach(z=>{
+      const k=Math.round(x*10)+'_'+Math.round(z*10);
+      if(placed.has(k)) return; placed.add(k);
+      const c=new THREE.Mesh(colGeo,colMat);c.position.set(x,0.175,z);
+      c.userData.ovlType='columns';addSceneEl(c);
+    });
+  }
+
+  // ── Nursery area ──
+  const nursX=setsEndX+1.0,nursW=PH_L-nursX-1.0;
+  if(nursW>1){
+    const nursMat=new THREE.MeshStandardMaterial({color:0x059669,metalness:0.1,roughness:0.7,transparent:true,opacity:0.12});
+    const nurs=new THREE.Mesh(new THREE.PlaneGeometry(nursW,blkH),nursMat);
+    nurs.rotation.x=-Math.PI/2;nurs.position.set(nursX+nursW/2,-0.001,blkZ[0]+blkH/2);
+    nurs.userData.ovlType='nursery';addSceneEl(nurs);
+    const nl=lbl('NURSERY / PACKING','el');
+    nl.position.set(nursX+nursW/2,0.1,PH_W/2);nl.userData.ovlType='nursery';addSceneEl(nl);
+  }
+
+  // ── Block & row labels ──
+  for(let b=0;b<BLOCKS;b++){
+    const bz=blkZ[b];
+    const bl=lbl('BLOCK '+(b+1),'el');bl.position.set(setX[0]-1.5,0.2,bz+W+RW/2);bl.userData.ovlType='qLabels';addSceneEl(bl);
+    const al=lbl((b+1)+'A');al.position.set(setX[0]-0.5,0.1,bz+W/2);al.userData.ovlType='setLabels';addSceneEl(al);
+    const bbl=lbl((b+1)+'B');bbl.position.set(setX[0]-0.5,0.1,bz+W+RW+W/2);bbl.userData.ovlType='setLabels';addSceneEl(bbl);
+  }
+  // Set number markers along top
+  [0,4,9,14,19,25].forEach(s=>{
+    const sl=lbl(''+(s+1));sl.position.set(setX[s]+L/2,0.15,blkZ[0]-0.6);
+    sl.userData.ovlType='setLabels';addSceneEl(sl);
+  });
+
+  // ── Fan & Pad labels ──
+  const fl=lbl('EXHAUST FANS \u2192','el');fl.position.set(PH_L+2,0.1,PH_W/2);fl.userData.ovlType='polyhouse';addSceneEl(fl);
+  const pl=lbl('\u2190 COOLING PADS','el');pl.position.set(-2,0.1,PH_W/2);pl.userData.ovlType='polyhouse';addSceneEl(pl);
+
+  // ── Camera ──
+  cam.position.set(PH_L*0.6,35,PH_W*0.8);ctl.target.copy(lctr);ctl.update();
+  const shSz=Math.max(PH_L,PH_W)/2+5;
+  const shc=kl.shadow.camera;shc.left=shc.bottom=-shSz;shc.right=shc.top=shSz;shc.updateProjectionMatrix();
+  kl.position.set(lctr.x+15,30,lctr.z+10);
+
+  V.iso=[[PH_L*0.7,25,PH_W*0.7],[lctr.x,0,lctr.z]];
+  V.top=[[lctr.x,PH_L*0.55,lctr.z+0.01],[lctr.x,0,lctr.z]];
+  V.front=[[lctr.x,5,PH_W+25],[lctr.x,0,lctr.z]];
+  V.side=[[PH_L+25,5,lctr.z],[lctr.x,0,lctr.z]];
+
+  buildT2Controls();applyT2State();
+}
+
+/* ═══ PER-SET TIER 2 CONTROLS ═══ */
+function buildT2Controls(){
+  const container=document.getElementById('t2-per-set');
+  container.innerHTML='';
+  layoutClones.forEach((set,idx)=>{
+    const div=document.createElement('div');div.className='tr';
+    div.innerHTML=`<label><span class="d" style="background:#c4b5fd"></span>${set.label}</label><input type="checkbox" class="sw" data-t2="${idx}">`;
+    container.appendChild(div);
+    div.querySelector('input').addEventListener('change',(e)=>{
+      layoutClones[idx].t2Visible=e.target.checked;
+      applyT2ForSet(idx);
+    });
+  });
+}
+
+function applyT2State(){
+  layoutClones.forEach((_,idx)=>applyT2ForSet(idx));
+}
+
+function applyT2ForSet(idx){
+  const set=layoutClones[idx];
+  const vis=set.t2Visible;
+  if(set.isOriginal){
+    // Control original T2 groups
+    G.expansion.visible=vis;
+    Object.values(T2).forEach(g=>g.visible=vis);
+  } else if(set.wrappers){
+    // For clones, find the expansion wrapper and T2 sub-groups inside component wrappers
+    if(set.wrappers.expansion) set.wrappers.expansion.visible=vis;
+    // T2 sub-groups are nested inside component wrappers
+    ['frame','brackets','pipes','cups','supply','collect','water'].forEach(key=>{
+      if(set.wrappers[key]){
+        // The T2 subgroup is the last child added to each component group in the template
+        // In the clone wrapper, find groups that match T2 subgroups
+        set.wrappers[key].traverse(child=>{
+          if(child.isGroup && child!==set.wrappers[key]){
+            // Check if this is a T2 sub-group (cloned from T2.frame, T2.pipes etc.)
+            // T2 groups start hidden, so they have userData or are the nested groups
+            child.visible=vis;
+          }
+        });
+      }
+    });
+  }
+}
+
+/* ═══ GROUND (placeholder, rebuilt by rebuildLayout) ═══ */
+
+/* ═══ INITIAL LAYOUT BUILD ═══ */
+rebuildLayout();
+setTimeout(()=>document.getElementById('ld').classList.add('h'),300);
+
+/* ═══ OVERLAY TOGGLE HANDLERS ═══ */
+function setOverlayVis(type, vis){
+  layoutSceneEls.forEach(el=>{
+    if(el.userData.ovlType===type) el.visible=vis;
+  });
+}
+// Per-overlay toggles
+document.querySelectorAll('.ovl').forEach(cb=>{
+  cb.addEventListener('change',()=>setOverlayVis(cb.dataset.ovl, cb.checked));
+});
+// Hide All master toggle
+document.getElementById('sw-hideAll').addEventListener('change',(e)=>{
+  const hide=e.target.checked;
+  // Toggle per-overlay checkboxes
+  document.querySelectorAll('.ovl').forEach(cb=>{
+    cb.checked=!hide;
+    setOverlayVis(cb.dataset.ovl, !hide);
+  });
+  // Hide dims group
+  G.dims.visible=!hide;
+  const dimsCb=document.querySelector('[data-g="dims"]');
+  if(dimsCb) dimsCb.checked=!hide;
+  // Hide ALL text labels (CSS2DObject) everywhere in scene
+  scene.traverse(obj=>{
+    if(obj.isCSS2DObject) obj.visible=!hide;
+  });
+  // Hide all tagged overlay meshes (walkway strips, gap strips)
+  layoutSceneEls.forEach(el=>{
+    if(el.userData.ovlType) el.visible=!hide;
+  });
+});
+
+/* ═══ ALL-T2 MASTER TOGGLE ═══ */
+document.getElementById('sw-allT2').addEventListener('change',(e)=>{
+  const checked=e.target.checked;
+  layoutClones.forEach((set,idx)=>{
+    set.t2Visible=checked;
+    applyT2ForSet(idx);
+  });
+  // Sync per-set checkboxes
+  document.querySelectorAll('[data-t2]').forEach(cb=>cb.checked=checked);
+});
+
+/* ═══ COMPONENT TOGGLES ═══ */
+document.querySelectorAll('.sw[data-g]').forEach(s=>{
+  s.addEventListener('change',()=>{
+    const g=G[s.dataset.g];
+    if(g) g.visible=s.checked;
+  });
+});
+
+/* ═══ LIGHTING CONTROLS ═══ */
+function setupSlider(id, cb) {
+  const el = document.getElementById(id);
+  const sv = document.getElementById(id.replace('sl-','sv-'));
+  if (!el) return;
+  const handler = () => { cb(parseFloat(el.value), sv); };
+  el.addEventListener('input', handler);
+  handler(); // init
+}
+setupSlider('sl-key', (v, sv) => { kl.intensity = v / 100; sv.textContent = v + '%'; });
+setupSlider('sl-amb', (v, sv) => { amb.intensity = v / 100; sv.textContent = v + '%'; });
+setupSlider('sl-fill', (v, sv) => { fl.intensity = v / 100; sv.textContent = v + '%'; });
+setupSlider('sl-ang', (v, sv) => {
+  const rad = v * Math.PI / 180;
+  kl.position.x = CTR.x + KL_RADIUS * Math.cos(rad);
+  kl.position.z = CTR.z + KL_RADIUS * Math.sin(rad);
+  sv.textContent = v + '°';
+});
+setupSlider('sl-hgt', (v, sv) => { kl.position.y = v; sv.textContent = v + 'm'; });
+setupSlider('sl-exp', (v, sv) => { ren.toneMappingExposure = v / 100; sv.textContent = (v/100).toFixed(2); });
+
+/* ═══ CAMERA ═══ */
+function animC(p,t,d=700){
+  const sp=cam.position.clone(),st=ctl.target.clone();
+  const ep=new THREE.Vector3(...p),et=new THREE.Vector3(...t);
+  const t0=performance.now();
+  function f(n){let r=Math.min((n-t0)/d,1);r=r<.5?4*r*r*r:1-Math.pow(-2*r+2,3)/2;
+  cam.position.lerpVectors(sp,ep,r);ctl.target.lerpVectors(st,et,r);ctl.update();if(r<1)requestAnimationFrame(f)}
+  requestAnimationFrame(f);
+}
+V.iso=[[CTR.x+5,4,CTR.z+5],[CTR.x,CTR.y,CTR.z]];
+V.top=[[CTR.x,8,CTR.z+.01],[CTR.x,0,CTR.z]];
+V.front=[[CTR.x,CTR.y,5],[CTR.x,CTR.y,CTR.z]];
+V.side=[[6,CTR.y,CTR.z],[CTR.x,CTR.y,CTR.z]];
+V.joint=[[0.18,1.05,0.18],[Hp,RH-0.02,Hp]];
+V.slope=[[L+0.6,1.1,-0.2],[L/2,0.95,W/2]];
+document.querySelectorAll('.cb').forEach(b=>{
+  b.addEventListener('click',()=>{const v=V[b.dataset.v];if(v)animC(v[0],v[1])});
+});
+
+/* ═══ TOOLTIP ═══ */
+const ray=new THREE.Raycaster(),ms=new THREE.Vector2(),tip=document.getElementById('tip');
+const nfo={
+  frame:'40×40mm T-Slot Profile (JA15-10-4040L) — 6063-T5 aluminum, 10mm slot. 6 legs (4 corners + 2 center) × 1m + 2 long beams × 3m + 3 cross-beams × 1.5m = 16.5m per set.',
+  brackets:'90° Inside Corner Bracket (J38-BK-4040) — 37×37mm die-cast aluminum, sand-blast finish. 12 per set (2 per leg). Sits in the 90° angle at every leg↔beam joint.',
+  hardware:'T-Slot Nut (M6, 10mm slot, 20×10.5×9.8mm) + M8 Socket Head Cap Screw — 2 T-nuts and 2 screws per bracket. 20 of each per set.',
+  endcaps:'End Cap 40×40mm — Black polypropylene snap-fit cap covering exposed profile ends. 4 per set (leg bottoms). Prevents debris and provides a clean finish.',
+  pipes:'4″×2″ (100×55mm) UPVC NFT Channel — Openable, single-walled. 3m long, 1% slope. 14 holes at 200mm spacing. 7 channels per set at 200mm pitch (100mm gap for airflow).',
+  cups:'2″ (50mm) Net Cup — Tapered, holds cocopeat plug + seedling. 98 per set (14/pipe × 7 pipes), 50,960 for the full farm.',
+  supply:'1″ PVC Supply Header (Green) — Pumps A+B nutrient solution from elevated tank. T-joints at each channel.',
+  collect:'1″ PVC Collection Header (Blue) — Gravity-fed drainage into underground RCC sump.',
+  water:'Nutrient Film — 1-3mm depth, 1-2 L/min per channel. pH 5.5-6.0, EC 1.2-2.0 mS/cm.',
+  expansion:'TIER 2 — Complete NFT system replica. 600mm leg extension, 420mm plant clearance. Adds 10 pipes × 14 holes = 140 more plant sites. Bolt-on via T-slot joining plates.',
+};
+function getG(o){let c=o;while(c){for(const[n,g]of Object.entries(G))if(c===g)return n;c=c.parent}return null}
+ren.domElement.addEventListener('pointermove',e=>{
+  ms.x=(e.clientX/innerWidth)*2-1;ms.y=-(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(ms,cam);const h=ray.intersectObjects(scene.children,true);
+  if(h.length>0){const gn=getG(h[0].object);if(gn&&nfo[gn]){
+    tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY+12)+'px';
+    tip.textContent=nfo[gn];return}}
+  tip.style.display='none';
+});
+
+/* ═══ RESIZE + RENDER ═══ */
+addEventListener('resize',()=>{
+  cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();
+  ren.setSize(innerWidth,innerHeight);lR.setSize(innerWidth,innerHeight);
+});
+(function a(){requestAnimationFrame(a);ctl.update();ren.render(scene,cam);lR.render(scene,cam)})();
+</script>
+</body>
+</html>

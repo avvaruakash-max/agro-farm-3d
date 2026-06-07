@@ -852,28 +852,97 @@ function rebuildLayout(){
     roof.userData.ovlType='polyhouse';addSceneEl(roof);
   }
 
-  // ── Cooling pad wall — SOUTH (Z=0, 104m long) ──
-  const padMat=new THREE.MeshStandardMaterial({color:0x92400e,transparent:true,opacity:0.35,side:THREE.DoubleSide});
-  const padWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,GH),padMat);
-  padWall.position.set(PH_L/2,GH/2,0);
-  padWall.userData.ovlType='polyhouse';addSceneEl(padWall);
-  const pl=lbl('\u2191 COOLING PADS (South, 104m)','el');pl.position.set(PH_L/2,GH+0.5,-1.5);pl.userData.ovlType='polyhouse';addSceneEl(pl);
-
-  // ── Fan wall — NORTH (Z=48, 104m long) ──
-  const fanMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,transparent:true,opacity:0.4,side:THREE.DoubleSide});
-  const fanWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,GH),fanMat);
-  fanWall.position.set(PH_L/2,GH/2,PH_W);
-  fanWall.userData.ovlType='polyhouse';addSceneEl(fanWall);
-  // 40 × SNVF-1380 exhaust fans (1250mm blade, 44000 m³/hr, 1380mm frame)
-  const fanCircleGeo=new THREE.RingGeometry(0.45,0.69,16);
-  const fanCircleMat=new THREE.MeshStandardMaterial({color:0x3b82f6,side:THREE.DoubleSide,metalness:0.3,roughness:0.5});
-  const NFANS=40, fanSpacing=PH_L/(NFANS+1);
-  for(let i=1;i<=NFANS;i++){
-    const fc=new THREE.Mesh(fanCircleGeo,fanCircleMat);
-    fc.position.set(i*fanSpacing,GH*0.55,PH_W+0.01);
-    fc.userData.ovlType='polyhouse';addSceneEl(fc);
+  // ══════════════════════════════════════════════════════════
+  // ── COOLING PADS — 7090 Cellulose, 2000×610×150mm blocks ──
+  // ══════════════════════════════════════════════════════════
+  // Pad specs: H=2000mm, W=610mm, D=150mm, 7mm flute, 45°/45°
+  const PAD_H=2.0, PAD_W=0.61, PAD_D=0.15;
+  const padRows=2; // 2 rows stacked = 4.0m coverage
+  const padCols=Math.floor(PH_L/PAD_W); // 170 blocks per row
+  const padBlockGeo=new THREE.BoxGeometry(PAD_W-0.01,PAD_H-0.01,PAD_D);
+  const padMat=new THREE.MeshStandardMaterial({color:0x8B5E3C,metalness:0.05,roughness:0.9});
+  const padGridMat=new THREE.MeshStandardMaterial({color:0x6B3F1C,metalness:0.05,roughness:0.95});
+  for(let r=0;r<padRows;r++){
+    for(let c=0;c<padCols;c++){
+      const px=c*PAD_W+PAD_W/2;
+      const py=r*PAD_H+PAD_H/2;
+      if(px>PH_L) continue;
+      const blk=new THREE.Mesh(padBlockGeo,(c+r)%2===0?padMat:padGridMat);
+      blk.position.set(px,py,-PAD_D/2);
+      blk.userData.ovlType='polyhouse';addSceneEl(blk);
+    }
   }
-  const fl=lbl('\u2193 40\u00d7 SNVF-1380 EXHAUST FANS (North, 104m)','el');fl.position.set(PH_L/2,GH+0.5,PH_W+1.5);fl.userData.ovlType='polyhouse';addSceneEl(fl);
+  // Water distribution pipe along top of pads
+  const padPipeGeo=new THREE.CylinderGeometry(0.05,0.05,PH_L,6);
+  const pipeMat=new THREE.MeshStandardMaterial({color:0x4a90d9,metalness:0.5,roughness:0.4});
+  const padPipe=new THREE.Mesh(padPipeGeo,pipeMat);
+  padPipe.rotation.z=Math.PI/2;padPipe.position.set(PH_L/2,PAD_H*padRows+0.08,-PAD_D/2);
+  padPipe.userData.ovlType='polyhouse';addSceneEl(padPipe);
+  // Drain gutter at base
+  const gutterShape=new THREE.BoxGeometry(PH_L,0.08,PAD_D+0.1);
+  const gutterMesh=new THREE.Mesh(gutterShape,new THREE.MeshStandardMaterial({color:0x707070,metalness:0.4,roughness:0.5}));
+  gutterMesh.position.set(PH_L/2,0.04,-PAD_D/2);
+  gutterMesh.userData.ovlType='polyhouse';addSceneEl(gutterMesh);
+  // Remaining wall above pads (transparent film)
+  if(PAD_H*padRows<GH){
+    const topGap=GH-PAD_H*padRows;
+    const topWall=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,topGap),
+      new THREE.MeshStandardMaterial({color:0xddeeff,transparent:true,opacity:0.06,side:THREE.DoubleSide}));
+    topWall.position.set(PH_L/2,PAD_H*padRows+topGap/2,0);
+    topWall.userData.ovlType='polyhouse';addSceneEl(topWall);
+  }
+  const pl=lbl('\u2191 COOLING PADS 7090 (South, 104m) — 340 blocks','el');
+  pl.position.set(PH_L/2,GH+0.5,-1.5);pl.userData.ovlType='polyhouse';addSceneEl(pl);
+
+  // ══════════════════════════════════════════════════════════
+  // ── EXHAUST FANS — SNVF-1380, 1380×1380×400mm frame ──
+  // ══════════════════════════════════════════════════════════
+  const FAN_F=1.38, FAN_D=0.4, BLADE_R=0.625; // 1250mm blade dia
+  const NFANS=40, fanSpacing=PH_L/(NFANS+1);
+  // Materials
+  const fanFrameMat=new THREE.MeshStandardMaterial({color:0x8a8a8a,metalness:0.6,roughness:0.35});
+  const fanBladeMat=new THREE.MeshStandardMaterial({color:0xc0c0c0,metalness:0.7,roughness:0.2,side:THREE.DoubleSide});
+  const fanHubMat=new THREE.MeshStandardMaterial({color:0x333333,metalness:0.5,roughness:0.4});
+  const shutterMat=new THREE.MeshStandardMaterial({color:0x9ca3af,metalness:0.5,roughness:0.4});
+  // Shared geometries
+  const fanBoxGeo=new THREE.BoxGeometry(FAN_F,FAN_F,FAN_D);
+  const fanBoxInnerGeo=new THREE.BoxGeometry(FAN_F-0.06,FAN_F-0.06,FAN_D+0.02);
+  const hubGeo=new THREE.CylinderGeometry(0.08,0.08,0.12,8);
+  const bladeGeo=new THREE.PlaneGeometry(BLADE_R-0.08,0.12);
+  const shutterGeo=new THREE.PlaneGeometry(FAN_F-0.04,0.08);
+  for(let i=1;i<=NFANS;i++){
+    const fx=i*fanSpacing, fy=GH*0.55, fz=PH_W;
+    const fg=new THREE.Group();fg.position.set(fx,fy,fz);
+    // Frame box (hollow — outer box minus inner)
+    const outerBox=new THREE.Mesh(fanBoxGeo,fanFrameMat);
+    fg.add(outerBox);
+    // Hub
+    const hub=new THREE.Mesh(hubGeo,fanHubMat);
+    hub.rotation.x=Math.PI/2;
+    fg.add(hub);
+    // 6 blades
+    for(let b=0;b<6;b++){
+      const blade=new THREE.Mesh(bladeGeo,fanBladeMat);
+      const angle=b*Math.PI/3;
+      blade.position.set(Math.cos(angle)*(BLADE_R/2+0.04),Math.sin(angle)*(BLADE_R/2+0.04),0.05);
+      blade.rotation.z=angle+Math.PI/6;
+      fg.add(blade);
+    }
+    // Front shutters (horizontal slats)
+    for(let s=-2;s<=2;s++){
+      const sh=new THREE.Mesh(shutterGeo,shutterMat);
+      sh.position.set(0,s*0.22,FAN_D/2+0.01);
+      fg.add(sh);
+    }
+    fg.userData.ovlType='polyhouse';addSceneEl(fg);
+  }
+  // Fan wall background (behind fans, dark)
+  const fanBgMat=new THREE.MeshStandardMaterial({color:0x1a1a2e,transparent:true,opacity:0.3,side:THREE.DoubleSide});
+  const fanBg=new THREE.Mesh(new THREE.PlaneGeometry(PH_L,GH),fanBgMat);
+  fanBg.position.set(PH_L/2,GH/2,PH_W);
+  fanBg.userData.ovlType='polyhouse';addSceneEl(fanBg);
+  const fl=lbl('\u2193 40\u00d7 SNVF-1380 EXHAUST FANS (North, 104m)','el');
+  fl.position.set(PH_L/2,GH+0.5,PH_W+1.5);fl.userData.ovlType='polyhouse';addSceneEl(fl);
 
   // ── End walls — EAST (X=104) & WEST (X=0) — structural transparent ──
   const endMat=new THREE.MeshStandardMaterial({color:0xddeeff,transparent:true,opacity:0.06,side:THREE.DoubleSide});

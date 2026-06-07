@@ -75,6 +75,8 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="tr"><label><span class="d" style="background:#3b82f6"></span>Blue Aisles</label><input type="checkbox" class="sw ovl" checked data-ovl="blueAisles"></div>
 <div class="tr"><label><span class="d" style="background:#b0b0b0"></span>Polyhouse Structure</label><input type="checkbox" class="sw ovl" checked data-ovl="polyhouse"></div>
 <div class="tr"><label><span class="d" style="background:#059669"></span>Nursery</label><input type="checkbox" class="sw ovl" checked data-ovl="nursery"></div>
+<div class="tr"><label><span class="d" style="background:#f59e0b"></span>Circulation Fans</label><input type="checkbox" class="sw ovl" checked data-ovl="circFans"></div>
+<div class="tr"><label><span class="d" style="background:#06b6d4"></span>Fogger Lines</label><input type="checkbox" class="sw ovl" checked data-ovl="foggers"></div>
 <div class="tr"><label><span class="d" style="background:#fbbf24"></span>Dimensions</label><input type="checkbox" class="sw" checked data-g="dims"></div>
 </div>
 <div class="sec">Tier 2 Expansion</div>
@@ -1030,6 +1032,88 @@ function rebuildLayout(){
   entry.position.set(-1.5,1.25,PH_W/2);
   entry.userData.ovlType='polyhouse';addSceneEl(entry);
   const el=lbl('ENTRY');el.position.set(-1.5,2.8,PH_W/2);el.userData.ovlType='polyhouse';addSceneEl(el);
+
+  // ══════════════════════════════════════════════════
+  // ── CIRCULATION FANS — 24× 500mm HAF, racetrack ──
+  // ══════════════════════════════════════════════════
+  const CIRC_H=3.0; // mounting height
+  const circBodyGeo=new THREE.CylinderGeometry(0.25,0.25,0.15,12);
+  const circGuardGeo=new THREE.TorusGeometry(0.25,0.012,4,16);
+  const circBodyMat=new THREE.MeshStandardMaterial({color:0xf59e0b,metalness:0.4,roughness:0.4});
+  const circGuardMat=new THREE.MeshStandardMaterial({color:0x333333,metalness:0.5,roughness:0.3});
+  const circBladeMat=new THREE.MeshStandardMaterial({color:0xd4d4d4,metalness:0.6,roughness:0.2,side:THREE.DoubleSide});
+  const circBladeGeo=new THREE.PlaneGeometry(0.22,0.06);
+  // 4 fans per span, 6 spans = 24 fans
+  const circFanX=[5,28,52,76]; // X positions (spaced ~24m, 5m from west wall)
+  for(let s=0;s<6;s++){
+    const cz=s*SPAN+SPAN/2; // center of each span
+    const dir=s%2===0?-1:1; // odd spans: west, even: east
+    circFanX.forEach(cx=>{
+      const fg=new THREE.Group();
+      fg.position.set(cx,CIRC_H,cz);
+      // Body (motor housing)
+      const body=new THREE.Mesh(circBodyGeo,circBodyMat);
+      body.rotation.z=Math.PI/2;
+      body.rotation.y=dir>0?0:Math.PI;
+      fg.add(body);
+      // Guard ring
+      const guard=new THREE.Mesh(circGuardGeo,circGuardMat);
+      guard.rotation.y=Math.PI/2;
+      fg.add(guard);
+      // 3 blades
+      for(let b=0;b<3;b++){
+        const bl=new THREE.Mesh(circBladeGeo,circBladeMat);
+        const a=b*Math.PI*2/3;
+        bl.position.set(dir*0.02,Math.sin(a)*0.11,Math.cos(a)*0.11);
+        bl.rotation.z=a;
+        fg.add(bl);
+      }
+      // Direction arrow (small cone)
+      const arrowGeo=new THREE.ConeGeometry(0.06,0.15,4);
+      const arrow=new THREE.Mesh(arrowGeo,circBodyMat);
+      arrow.rotation.z=dir>0?-Math.PI/2:Math.PI/2;
+      arrow.position.set(dir*0.25,0,0);
+      fg.add(arrow);
+      // Hanging wire
+      const wireGeo=new THREE.CylinderGeometry(0.005,0.005,GH-CIRC_H,2);
+      const wire=new THREE.Mesh(wireGeo,circGuardMat);
+      wire.position.set(0,(GH-CIRC_H)/2,0);
+      fg.add(wire);
+      fg.userData.ovlType='circFans';addSceneEl(fg);
+    });
+  }
+  const cfl=lbl('24\u00d7 CIRCULATION FANS (HAF racetrack)','el');
+  cfl.position.set(PH_L/2,CIRC_H+0.5,PH_W/2);cfl.userData.ovlType='circFans';addSceneEl(cfl);
+
+  // ══════════════════════════════════════════════════
+  // ── FOGGER LINES — 16 laterals, 832 nozzles ──
+  // ══════════════════════════════════════════════════
+  const FOG_H=3.5; // mounting height
+  const fogPipeMat=new THREE.MeshStandardMaterial({color:0x06b6d4,metalness:0.3,roughness:0.5});
+  const fogNozzleMat=new THREE.MeshStandardMaterial({color:0x0891b2,metalness:0.4,roughness:0.4});
+  const fogPipeGeo=new THREE.CylinderGeometry(0.008,0.008,PH_L-2,4);
+  const fogNozzleGeo=new THREE.SphereGeometry(0.025,4,4);
+  const fogLines=16, fogLineSpacing=3.0, fogNozzleSpacing=2.0;
+  for(let l=0;l<fogLines;l++){
+    const fz=1.5+l*fogLineSpacing;
+    // Lateral pipe
+    const pipe=new THREE.Mesh(fogPipeGeo,fogPipeMat);
+    pipe.rotation.z=Math.PI/2;
+    pipe.position.set(PH_L/2,FOG_H,fz);
+    pipe.userData.ovlType='foggers';addSceneEl(pipe);
+    // Nozzles every 2m
+    for(let nx=1;nx<PH_L-1;nx+=fogNozzleSpacing){
+      const nz=new THREE.Mesh(fogNozzleGeo,fogNozzleMat);
+      nz.position.set(nx,FOG_H-0.03,fz);
+      nz.userData.ovlType='foggers';addSceneEl(nz);
+    }
+  }
+  // Header pipe (main supply along west wall)
+  const fogHeader=new THREE.Mesh(new THREE.CylinderGeometry(0.016,0.016,PH_W-3,4),fogPipeMat);
+  fogHeader.position.set(1,FOG_H,PH_W/2);
+  fogHeader.userData.ovlType='foggers';addSceneEl(fogHeader);
+  const fgl=lbl('832 FOGGER NOZZLES (16 lines \u00d7 52)','el');
+  fgl.position.set(PH_L/2,FOG_H+0.5,PH_W/2);fgl.userData.ovlType='foggers';addSceneEl(fgl);
 
   // ── Nursery area ──
   const nursX=setsEndX+1.0,nursW=PH_L-nursX-1.0;

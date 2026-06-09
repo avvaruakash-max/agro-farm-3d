@@ -61,7 +61,7 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="tr"><label><span class="d" style="background:#a8a29e"></span>T-Nuts & Screws</label><input type="checkbox" class="sw" checked data-g="hardware"></div>
 <div class="tr"><label><span class="d" style="background:#525252"></span>End Caps</label><input type="checkbox" class="sw" checked data-g="endcaps"></div>
 <div class="tr"><label><span class="d" style="background:#e5e7eb"></span>NFT Channels</label><input type="checkbox" class="sw" checked data-g="pipes"></div>
-<div class="tr"><label><span class="d" style="background:#4ade80"></span>Net Cups (120)</label><input type="checkbox" class="sw" checked data-g="cups"></div>
+<div class="tr"><label><span class="d" style="background:#4ade80"></span>Net Cups (<span id="lbl-cups-qty">120</span>)</label><input type="checkbox" class="sw" checked data-g="cups"></div>
 <div class="tr"><label><span class="d" style="background:#3b82f6"></span>Supply Pipe</label><input type="checkbox" class="sw" checked data-g="supply"></div>
 <div class="tr"><label><span class="d" style="background:#22c55e"></span>Collection Pipe</label><input type="checkbox" class="sw" checked data-g="collect"></div>
 <div class="tr"><label><span class="d" style="background:#60a5fa"></span>Water Film</label><input type="checkbox" class="sw" checked data-g="water"></div>
@@ -79,6 +79,14 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="tr"><label><span class="d" style="background:#06b6d4"></span>Fogger Lines</label><input type="checkbox" class="sw ovl" checked data-ovl="foggers"></div>
 <div class="tr"><label><span class="d" style="background:#8b5cf6"></span>Plumbing System</label><input type="checkbox" class="sw ovl" checked data-ovl="plumbing"></div>
 <div class="tr"><label><span class="d" style="background:#fbbf24"></span>Dimensions</label><input type="checkbox" class="sw" checked data-g="dims"></div>
+</div>
+<div class="sec">Crop Configuration</div>
+<div class="sld-row" style="margin-bottom:8px">
+  <label>Crop Type</label>
+  <select id="sl-crop" style="background:#1f2937;color:#fff;border:1px solid #374151;border-radius:6px;padding:5px 8px;font-size:12px;outline:none;cursor:pointer;flex:1;margin-left:12px;font-family:inherit">
+    <option value="lettuce">Lettuce (15 pots @ 200mm)</option>
+    <option value="basil">Basil / Herbs (20 pots @ 150mm)</option>
+  </select>
 </div>
 <div class="sec">Vertical Expansion</div>
 <div class="sld-row"><label>Active Tiers</label><input type="range" id="sl-levels" min="1" max="6" value="1"><span class="sval" id="sv-levels">1 Level</span></div>
@@ -170,10 +178,11 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 
 /* ═══ CONSTANTS (meters) ═══ */
 const L=3, W=1.5, H=1, P=0.04, Hp=P/2;
-const PIPES=8, HOLES=15, PS=0.18, HS=0.2; // 8 channels at 180mm pitch to clear columns
+const PIPES=8, PS=0.18; // 8 channels at 180mm pitch to clear columns
+let HOLES=15, HS=0.2; // Dynamic crop-based holes and spacing
 const PIPE_Z0=0.12; // first channel Z=120mm (centering 8 channels, outer edges clear legs)
 const LEGS=[[Hp,Hp],[L/2,Hp],[L-Hp,Hp],[Hp,W-Hp],[L/2,W-Hp],[L-Hp,W-Hp]]; // 6 legs
-const HOLE_EDGE=0.10; // 100mm edge clearance — centered: (3000 - 14×200) / 2 = 100mm each side
+let HOLE_EDGE=0.10; // 100mm edge clearance — centered: (3000 - 14×200) / 2 = 100mm each side
 const PW=0.10, PH=0.055, SL=0.01, SD=SL*L; // 100×55mm NFT channel
 const RH=H-Hp; // rail height
 const CTR=new THREE.Vector3(L/2,H/2,W/2);
@@ -417,6 +426,8 @@ function buildEndCaps(){
 
 /* ═══ NFT PIPES ═══ */
 function buildPipes(){
+  G.pipes.clear();
+  G.water.clear();
   const by=RH+Hp+0.003;
   for(let i=0;i<PIPES;i++){
     const z=PIPE_Z0+i*PS;
@@ -451,6 +462,7 @@ function buildPipes(){
 
 /* ═══ NET CUPS ═══ */
 function buildCups(){
+  G.cups.clear();
   const by=RH+Hp+0.003;
   const cg=new THREE.CylinderGeometry(0.024,0.017,0.035,10);
   const rg=new THREE.TorusGeometry(0.026,0.0025,6,12);
@@ -1000,6 +1012,42 @@ function rebuildExpansionTiers() {
   updateLightweightBoxes(v);
   updatePlumbingLines(v);
   updateBOM(v);
+}
+
+function rebuildCropConfig() {
+  const cropVal = document.getElementById('sl-crop')?.value ?? 'lettuce';
+  if (cropVal === 'lettuce') {
+    HOLES = 15;
+    HS = 0.20;
+    HOLE_EDGE = 0.10;
+  } else {
+    HOLES = 20;
+    HS = 0.15;
+    HOLE_EDGE = 0.075;
+  }
+  
+  buildPipes();
+  buildCups();
+  buildExpansion();
+  
+  TMPL['expansion'] = [...G.expansion.children];
+  TMPL['pipes'] = [...G.pipes.children];
+  TMPL['cups'] = [...G.cups.children];
+  TMPL['water'] = [...G.water.children];
+  
+  rebuildLayout();
+  
+  const levelsSlider = document.getElementById('sl-levels');
+  const v = levelsSlider ? parseInt(levelsSlider.value) : 1;
+  setVisibleTiers(v);
+  updateLightweightBoxes(v);
+  updatePlumbingLines(v);
+  updateBOM(v);
+
+  const lblCupsQty = document.getElementById('lbl-cups-qty');
+  if (lblCupsQty) {
+    lblCupsQty.textContent = (PIPES * HOLES).toString();
+  }
 }
 
 /* ═══ DYNAMIC LAYOUT SYSTEM ═══ */
@@ -1667,6 +1715,13 @@ const swTierNft = document.getElementById('sw-tier-nft');
 if (swTierNft) {
   swTierNft.addEventListener('change', () => {
     rebuildExpansionTiers();
+  });
+}
+
+const slCrop = document.getElementById('sl-crop');
+if (slCrop) {
+  slCrop.addEventListener('change', () => {
+    rebuildCropConfig();
   });
 }
 

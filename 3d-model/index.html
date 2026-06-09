@@ -85,7 +85,8 @@ canvas{display:block;position:fixed;top:0;left:0}
   <label>Crop Type</label>
   <select id="sl-crop" style="background:#1f2937;color:#fff;border:1px solid #374151;border-radius:6px;padding:5px 8px;font-size:12px;outline:none;cursor:pointer;flex:1;margin-left:12px;font-family:inherit">
     <option value="lettuce">Lettuce (15 pots @ 200mm)</option>
-    <option value="basil">Basil / Herbs (20 pots @ 150mm)</option>
+    <option value="basil" selected>Basil / Herbs (20 pots @ 150mm)</option>
+    <option value="nursery">Nursery / Compact (30 pots @ 100mm)</option>
   </select>
 </div>
 <div class="sec">Vertical Expansion</div>
@@ -1020,10 +1021,14 @@ function rebuildCropConfig() {
     HOLES = 15;
     HS = 0.20;
     HOLE_EDGE = 0.10;
-  } else {
+  } else if (cropVal === 'basil') {
     HOLES = 20;
     HS = 0.15;
     HOLE_EDGE = 0.075;
+  } else if (cropVal === 'nursery') {
+    HOLES = 30;
+    HS = 0.10;
+    HOLE_EDGE = 0.05;
   }
   
   buildPipes();

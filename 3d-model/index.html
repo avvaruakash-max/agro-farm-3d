@@ -62,8 +62,8 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="tr"><label><span class="d" style="background:#525252"></span>End Caps</label><input type="checkbox" class="sw" checked data-g="endcaps"></div>
 <div class="tr"><label><span class="d" style="background:#e5e7eb"></span>NFT Channels</label><input type="checkbox" class="sw" checked data-g="pipes"></div>
 <div class="tr"><label><span class="d" style="background:#4ade80"></span>Net Cups (150)</label><input type="checkbox" class="sw" checked data-g="cups"></div>
-<div class="tr"><label><span class="d" style="background:#22c55e"></span>Supply Pipe</label><input type="checkbox" class="sw" checked data-g="supply"></div>
-<div class="tr"><label><span class="d" style="background:#3b82f6"></span>Collection Pipe</label><input type="checkbox" class="sw" checked data-g="collect"></div>
+<div class="tr"><label><span class="d" style="background:#3b82f6"></span>Supply Pipe</label><input type="checkbox" class="sw" checked data-g="supply"></div>
+<div class="tr"><label><span class="d" style="background:#22c55e"></span>Collection Pipe</label><input type="checkbox" class="sw" checked data-g="collect"></div>
 <div class="tr"><label><span class="d" style="background:#60a5fa"></span>Water Film</label><input type="checkbox" class="sw" checked data-g="water"></div>
 <div class="sec">Overlays</div>
 <div class="tr"><label><span class="d" style="background:#ef4444"></span>Hide All Cues</label><input type="checkbox" class="sw" id="sw-hideAll"></div>
@@ -234,8 +234,8 @@ const mPipe=new THREE.MeshStandardMaterial({color:0xeef0f2,metalness:0.04,roughn
 const mPCap=new THREE.MeshStandardMaterial({color:0xc0c4cc,metalness:0.15,roughness:0.3});
 const mCup=new THREE.MeshStandardMaterial({color:0x15803d,metalness:0.08,roughness:0.5,transparent:true,opacity:0.8});
 const mCupR=new THREE.MeshStandardMaterial({color:0x166534,metalness:0.1,roughness:0.35});
-const mSup=new THREE.MeshStandardMaterial({color:0x16a34a,metalness:0.12,roughness:0.3});
-const mCol=new THREE.MeshStandardMaterial({color:0x1e3a8a,metalness:0.12,roughness:0.3});
+const mSup=new THREE.MeshStandardMaterial({color:0x1e3a8a,metalness:0.12,roughness:0.3});
+const mCol=new THREE.MeshStandardMaterial({color:0x16a34a,metalness:0.12,roughness:0.3});
 const mHole=new THREE.MeshBasicMaterial({color:0x08080e});
 const mWat=new THREE.MeshStandardMaterial({color:0x38bdf8,metalness:0.4,roughness:0.06,transparent:true,opacity:0.25,side:THREE.DoubleSide});
 const mDim=new THREE.LineBasicMaterial({color:0xfbbf24});
@@ -422,28 +422,28 @@ function buildPipes(){
     const my=by+PH/2; // pipe center y (no offset — rotation handles slope)
     const pg=new THREE.BoxGeometry(L,PH,PW);
     const p=new THREE.Mesh(pg,mPipe);
-    p.position.set(L/2,my,z);p.rotation.z=-Math.atan(SL); // negative = inlet HIGH, outlet LOW
+    p.position.set(L/2,my,z);p.rotation.z=Math.atan(SL); // positive = East HIGH, West LOW
     p.castShadow=true;p.receiveShadow=true;G.pipes.add(p);
     // End caps (positioned at sloped pipe ends)
-    const inletY=by+PH/2+SD/2; // higher end (inlet, x=0)
-    const outletY=by+PH/2-SD/2; // lower end (outlet, x=L)
+    const inletY=by+PH/2+SD/2; // higher end (inlet, x=L)
+    const outletY=by+PH/2-SD/2; // lower end (outlet, x=0)
     const cg=new THREE.BoxGeometry(0.005,PH+0.004,PW+0.004);
-    const cl=new THREE.Mesh(cg,mPCap);cl.position.set(0,inletY,z);G.pipes.add(cl);
-    const cr=new THREE.Mesh(cg,mPCap);cr.position.set(L,outletY,z);G.pipes.add(cr);
-    // Spout (drainage at outlet end)
+    const cl=new THREE.Mesh(cg,mPCap);cl.position.set(0,outletY,z);G.pipes.add(cl); // West end is low
+    const cr=new THREE.Mesh(cg,mPCap);cr.position.set(L,inletY,z);G.pipes.add(cr);  // East end is high
+    // Spout (drainage at outlet end on West side)
     const sg=new THREE.CylinderGeometry(0.009,0.009,0.04,8);
-    const sp=new THREE.Mesh(sg,mPCap);sp.position.set(L+0.007,outletY-0.02,z);G.pipes.add(sp);
-    // Holes (14 holes, 200mm spacing, 150mm edge clearance)
+    const sp=new THREE.Mesh(sg,mPCap);sp.position.set(-0.007,outletY-0.02,z);G.pipes.add(sp);
+    // Holes (15 holes, 200mm spacing, 100mm edge clearance)
     const hg=new THREE.CylinderGeometry(0.024,0.024,0.004,12);
     for(let j=0;j<HOLES;j++){
       const hx=HOLE_EDGE+j*HS;
-      const hy=by+PH+SL*(L/2-hx); // follows pipe top surface slope
+      const hy=by+PH+SL*(hx-L/2); // follows pipe top surface slope (rising to East)
       G.pipes.add(new THREE.Mesh(hg,mHole).translateX(hx).translateY(hy).translateZ(z));
     }
     // Water film
     const wg=new THREE.PlaneGeometry(L-0.02,PW*0.65);
     const wm=new THREE.Mesh(wg,mWat);
-    wm.rotation.x=-Math.PI/2;wm.rotation.z=-Math.atan(SL); // matches pipe slope
+    wm.rotation.x=-Math.PI/2;wm.rotation.z=Math.atan(SL); // matches pipe slope
     wm.position.set(L/2,by+0.005,z);G.water.add(wm);
   }
 }
@@ -457,7 +457,7 @@ function buildCups(){
     const z=PIPE_Z0+i*PS;
     for(let j=0;j<HOLES;j++){
       const hx=HOLE_EDGE+j*HS;
-      const hy=by+PH+SL*(L/2-hx);
+      const hy=by+PH+SL*(hx-L/2);
       const c=new THREE.Mesh(cg,mCup);c.position.set(hx,hy+0.014,z);c.castShadow=true;G.cups.add(c);
       const r=new THREE.Mesh(rg,mCupR);r.rotation.x=Math.PI/2;r.position.set(hx,hy+0.03,z);G.cups.add(r);
     }
@@ -467,33 +467,87 @@ function buildCups(){
 /* ═══ SUPPLY PIPE ═══ */
 function buildSupply(){
   const by=RH+Hp+0.003;const hY=by+PH+0.05;
-  const hg=new THREE.CylinderGeometry(0.015,0.015,W,12);
-  const h=new THREE.Mesh(hg,mSup);h.rotation.x=Math.PI/2;h.position.set(-0.08,hY,W/2);h.castShadow=true;G.supply.add(h);
+  
+  // Longitudinal pipe along the side of the frame (Z = 0.015) from West (X = -0.08) to East (X = L + 0.02)
+  const lp = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, L + 0.10, 8), mSup);
+  lp.rotation.z = Math.PI / 2;
+  lp.position.set((L - 0.06)/2, hY, 0.015);
+  lp.castShadow = true;
+  G.supply.add(lp);
+
+  // Elbow sphere at West end of longitudinal pipe
+  G.supply.add(new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), mSup).position.set(-0.08, hY, 0.015));
+
+  // Vertical feed pipe at West end (from bottom to header height)
+  const feedPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, hY - 0.2, 8), mSup);
+  feedPipe.position.set(-0.08, (hY + 0.2)/2, 0.015);
+  feedPipe.castShadow = true;
+  G.supply.add(feedPipe);
+
+  // Distributor manifold at East end (X = L + 0.02) running in Z direction
+  const manifold = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 1.41, 12), mSup);
+  manifold.rotation.x = Math.PI / 2;
+  manifold.position.set(L + 0.02, hY, 0.72);
+  manifold.castShadow = true;
+  G.supply.add(manifold);
+
+  // Elbow sphere at East end of longitudinal pipe
+  G.supply.add(new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), mSup).position.set(L + 0.02, hY, 0.015));
+
+  // Branches feeding from distributor manifold into channel inlets at East end
   for(let i=0;i<PIPES;i++){
     const z=PIPE_Z0+i*PS;
-    const bg=new THREE.CylinderGeometry(0.007,0.007,0.1,8);
-    const br=new THREE.Mesh(bg,mSup);br.rotation.z=Math.PI/2;br.position.set(-0.03,hY,z);G.supply.add(br);
-    G.supply.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mSup).translateX(-0.08).translateY(hY).translateZ(z));
-    const dh=0.05;const dg=new THREE.CylinderGeometry(0.007,0.007,dh,8);
-    const dr=new THREE.Mesh(dg,mSup);dr.position.set(0.02,hY-dh/2,z);G.supply.add(dr);
+    // T-joint on manifold
+    G.supply.add(new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), mSup).position.set(L + 0.02, hY, z));
+    // Horizontal branch from manifold to channel inlet
+    const br = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.07, 8), mSup);
+    br.rotation.z = Math.PI/2;
+    br.position.set(L - 0.015, hY, z);
+    G.supply.add(br);
+    // Vertical drop tube into channel
+    const dh = 0.05;
+    const dr = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, dh, 8), mSup);
+    dr.position.set(L - 0.05, hY - dh/2, z);
+    G.supply.add(dr);
   }
 }
 
 /* ═══ COLLECTION PIPE ═══ */
 function buildCollect(){
-  const by=RH+Hp+0.003;const hY=by+PH/2-SD-0.05;
-  const hg=new THREE.CylinderGeometry(0.015,0.015,W,12);
-  const h=new THREE.Mesh(hg,mCol);h.rotation.x=Math.PI/2;h.position.set(L+0.08,hY,W/2);h.castShadow=true;G.collect.add(h);
+  const by=RH+Hp+0.003;
+  const outletY = by + PH/2 - SD/2; // outlet center at West end (X = 0)
+  const hY = outletY - 0.08;
+  
+  // 2" Collection Header at West side (X = -0.04) running in Z direction
+  const hg=new THREE.CylinderGeometry(0.025,0.025,W,12);
+  const h=new THREE.Mesh(hg,mCol);
+  h.rotation.x=Math.PI/2;
+  h.position.set(-0.04,hY,W/2);
+  h.castShadow=true;
+  G.collect.add(h);
+
   for(let i=0;i<PIPES;i++){
     const z=PIPE_Z0+i*PS;
-    const bg=new THREE.CylinderGeometry(0.007,0.007,0.08,8);
-    const br=new THREE.Mesh(bg,mCol);br.rotation.z=Math.PI/2;br.position.set(L+0.04,hY,z);G.collect.add(br);
-    G.collect.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mCol).translateX(L+0.08).translateY(hY).translateZ(z));
+    // Horizontal branch from West spout (X = -0.007) to Collection Header (X = -0.04)
+    const horiz=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.033,8),mCol);
+    horiz.rotation.z=Math.PI/2;
+    horiz.position.set(-0.0235, hY, z);
+    G.collect.add(horiz);
+    
+    // Vertical drop pipe from spout down to horizontal branch height
+    const spoutBottomY = outletY - 0.04;
+    const vert=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007, spoutBottomY - hY, 8),mCol);
+    vert.position.set(-0.007, (spoutBottomY + hY)/2, z);
+    G.collect.add(vert);
+    
+    // Joint connections represented by spheres
+    G.collect.add(new THREE.Mesh(new THREE.SphereGeometry(0.028,8,8),mCol).position.set(-0.04,hY,z));
+    G.collect.add(new THREE.Mesh(new THREE.SphereGeometry(0.011,8,8),mCol).position.set(-0.007,hY,z));
   }
   // Drop pipe from collection header to row drain line at ground level (Y = 0.1)
-  const dropPipeGeo=new THREE.CylinderGeometry(0.012,0.012,hY-0.1,8);
+  const dropPipeGeo=new THREE.CylinderGeometry(0.025,0.025,hY-0.1,8);
   const dropPipe=new THREE.Mesh(dropPipeGeo,mCol);
-  dropPipe.position.set(L+0.08,(hY+0.1)/2,W/2);
+  dropPipe.position.set(-0.04,(hY+0.1)/2,W/2);
   dropPipe.castShadow=true;
   G.collect.add(dropPipe);
 }
@@ -547,54 +601,101 @@ function buildExpansion(){
       const z=PIPE_Z0+i*PS;
       const my=tby+PH/2;
       const p=new THREE.Mesh(new THREE.BoxGeometry(L,PH,PW),mPipe);
-      p.position.set(L/2,my,z);p.rotation.z=-Math.atan(SL);
+      p.position.set(L/2,my,z);p.rotation.z=Math.atan(SL); // positive slope
       p.castShadow=true;p.receiveShadow=true;tierGroup.add(p);
       const inY=tby+PH/2+SD/2, outY=tby+PH/2-SD/2;
       const ecg=new THREE.BoxGeometry(0.005,PH+0.004,PW+0.004);
-      const cl=new THREE.Mesh(ecg,mPCap);cl.position.set(0,inY,z);tierGroup.add(cl);
-      const cr=new THREE.Mesh(ecg,mPCap);cr.position.set(L,outY,z);tierGroup.add(cr);
+      const cl=new THREE.Mesh(ecg,mPCap);cl.position.set(0,outY,z);tierGroup.add(cl); // West end is low
+      const cr=new THREE.Mesh(ecg,mPCap);cr.position.set(L,inY,z);tierGroup.add(cr);  // East end is high
       const sp=new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,0.04,8),mPCap);
-      sp.position.set(L+0.007,outY-0.02,z);tierGroup.add(sp);
-      
-      const dropPipeGeo=new THREE.CylinderGeometry(0.006,0.006,tierSpacing-PH,8);
-      const dp=new THREE.Mesh(dropPipeGeo,mCol);
-      dp.position.set(L+0.007,outY-tierSpacing/2,z);
-      tierGroup.add(dp);
+      sp.position.set(-0.007,outY-0.02,z);tierGroup.add(sp);
       
       for(let j=0;j<HOLES;j++){
         const hx=HOLE_EDGE+j*HS;
-        const hy=tby+PH+SL*(L/2-hx);
+        const hy=tby+PH+SL*(hx-L/2);
         const hMesh=new THREE.Mesh(hg2,mHole);hMesh.position.set(hx,hy,z);tierGroup.add(hMesh);
         const c=new THREE.Mesh(cg2,mCup);c.position.set(hx,hy+0.014,z);tierGroup.add(c);
         const r=new THREE.Mesh(rg2,mCupR);r.rotation.x=Math.PI/2;r.position.set(hx,hy+0.03,z);tierGroup.add(r);
       }
       const wg=new THREE.PlaneGeometry(L-0.02,PW*0.65);
       const wm=new THREE.Mesh(wg,mWat);
-      wm.rotation.x=-Math.PI/2;wm.rotation.z=-Math.atan(SL);
+      wm.rotation.x=-Math.PI/2;wm.rotation.z=Math.atan(SL);
       wm.position.set(L/2,tby+0.005,z);tierGroup.add(wm);
     }
     
+    // Tier Supply Pipe
     const tsY=tby+PH+0.05;
-    const shdr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,W,12),mSup);
-    shdr.rotation.x=Math.PI/2;shdr.position.set(-0.08,tsY,W/2);tierGroup.add(shdr);
+    const lp = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, L + 0.10, 8), mSup);
+    lp.rotation.z = Math.PI / 2;
+    lp.position.set((L - 0.06)/2, tsY, 0.015);
+    lp.castShadow = true;
+    tierGroup.add(lp);
+
+    // Elbow sphere at West end
+    const elbW = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), mSup);
+    elbW.position.set(-0.08, tsY, 0.015);
+    tierGroup.add(elbW);
+
+    // Vertical feed pipe from tier floor to header height
+    const fp = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, tsY - (tH + Hp), 8), mSup);
+    fp.position.set(-0.08, (tsY + tH + Hp)/2, 0.015);
+    tierGroup.add(fp);
+
+    // Distributor manifold at East end (X = L + 0.02)
+    const manifold = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 1.41, 12), mSup);
+    manifold.rotation.x = Math.PI / 2;
+    manifold.position.set(L + 0.02, tsY, 0.72);
+    manifold.castShadow = true;
+    tierGroup.add(manifold);
+
+    // Elbow sphere at East end
+    const elbE = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), mSup);
+    elbE.position.set(L + 0.02, tsY, 0.015);
+    tierGroup.add(elbE);
+
+    // Micro branches from manifold into channel inlets
     for(let i=0;i<PIPES;i++){
       const z=PIPE_Z0+i*PS;
-      const br=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.1,8),mSup);
-      br.rotation.z=Math.PI/2;br.position.set(-0.03,tsY,z);tierGroup.add(br);
-      const spNode=new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mSup);spNode.position.set(-0.08,tsY,z);tierGroup.add(spNode);
-      const dr=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.05,8),mSup);
-      dr.position.set(0.02,tsY-0.025,z);tierGroup.add(dr);
+      const tNode = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), mSup);
+      tNode.position.set(L + 0.02, tsY, z);
+      tierGroup.add(tNode);
+
+      const br = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.07, 8), mSup);
+      br.rotation.z = Math.PI / 2;
+      br.position.set(L - 0.015, tsY, z);
+      tierGroup.add(br);
+
+      const dr = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.05, 8), mSup);
+      dr.position.set(L - 0.05, tsY - 0.025, z);
+      tierGroup.add(dr);
     }
     
-    const tcY=tby+PH/2-SD/2-0.05;
-    const chdr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,W,12),mCol);
-    chdr.rotation.x=Math.PI/2;chdr.position.set(L+0.08,tcY,W/2);tierGroup.add(chdr);
+    // Tier Collection Pipe
+    const outY_tier = tby + PH/2 - SD/2;
+    const tcY=outY_tier - 0.08;
+    const chdr=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,W,12),mCol);
+    chdr.rotation.x=Math.PI/2;chdr.position.set(-0.04,tcY,W/2);tierGroup.add(chdr);
     for(let i=0;i<PIPES;i++){
       const z=PIPE_Z0+i*PS;
-      const br=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.08,8),mCol);
-      br.rotation.z=Math.PI/2;br.position.set(L+0.04,tcY,z);tierGroup.add(br);
-      const spNode=new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mCol);spNode.position.set(L+0.08,tcY,z);tierGroup.add(spNode);
+      const horiz=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.033,8),mCol);
+      horiz.rotation.z=Math.PI/2;
+      horiz.position.set(-0.0235, tcY, z);
+      tierGroup.add(horiz);
+      
+      const spoutBottomY = outY_tier - 0.04;
+      const vert=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007, spoutBottomY - tcY, 8),mCol);
+      vert.position.set(-0.007, (spoutBottomY + tcY)/2, z);
+      tierGroup.add(vert);
+      
+      const spNode1=new THREE.Mesh(new THREE.SphereGeometry(0.028,8,8),mCol);spNode1.position.set(-0.04,tcY,z);tierGroup.add(spNode1);
+      const spNode2=new THREE.Mesh(new THREE.SphereGeometry(0.011,8,8),mCol);spNode2.position.set(-0.007,tcY,z);tierGroup.add(spNode2);
     }
+    
+    const dropPipeGeo=new THREE.CylinderGeometry(0.025,0.025,tierSpacing,8);
+    const dp=new THREE.Mesh(dropPipeGeo,mCol);
+    dp.position.set(-0.04, tcY - tierSpacing/2, W/2);
+    dp.castShadow=true;
+    tierGroup.add(dp);
   }
 }
 
@@ -702,33 +803,34 @@ function updatePlumbingLines(n) {
   let z = PER_Z; 
   for (let b = 0; b < BLOCKS; b++) { blkZ.push(z); z += W + RW + W; if (b < BLOCKS - 1) z += BG; }
   
-  const L_pipe = setsEndX - setX[0] + 0.1;
+  const L_pipe_sup = setsEndX - 1.42;
+  const L_pipe_drn = setsEndX - 1.46;
   
   // ── Main Supply pipe from Elevated Tanks to Main Supply Header ──
-  const mainSupHoriz = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 5.4, 8), pipeBlue);
+  const mainSupHoriz = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 5.42, 8), pipeBlue);
   mainSupHoriz.rotation.z = Math.PI / 2;
-  mainSupHoriz.position.set(-1.3, 4.0, PH_W - 6);
+  mainSupHoriz.position.set(-1.29, 4.0, PH_W - 6);
   group.add(mainSupHoriz);
   
   const mainSupVert = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 2.9, 8), pipeBlue);
-  mainSupVert.position.set(1.4, 2.55, PH_W - 6);
+  mainSupVert.position.set(1.42, 2.55, PH_W - 6);
   group.add(mainSupVert);
   
   const supHeaderLength = (PH_W - 6) - blkZ[0];
   const mainSupHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, supHeaderLength, 8), pipeBlue);
   mainSupHeader.rotation.x = Math.PI / 2;
-  mainSupHeader.position.set(1.4, H_supply, (PH_W - 6 + blkZ[0]) / 2);
+  mainSupHeader.position.set(1.42, H_supply, (PH_W - 6 + blkZ[0]) / 2);
   group.add(mainSupHeader);
   
   for (let i = 1; i < n; i++) {
     const yLvl = H_supply + i * tierSpacing;
     const supHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, supHeaderLength, 8), pipeBlue);
     supHeader.rotation.x = Math.PI / 2;
-    supHeader.position.set(1.4, yLvl, (PH_W - 6 + blkZ[0]) / 2);
+    supHeader.position.set(1.42, yLvl, (PH_W - 6 + blkZ[0]) / 2);
     group.add(supHeader);
     
     const conn = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, i * tierSpacing, 8), pipeBlue);
-    conn.position.set(1.4, H_supply + (i * tierSpacing) / 2, PH_W - 6);
+    conn.position.set(1.42, H_supply + (i * tierSpacing) / 2, PH_W - 6);
     group.add(conn);
   }
   
@@ -736,17 +838,17 @@ function updatePlumbingLines(n) {
   const drainHeaderLength = (PH_W - 6) - blkZ[0];
   const mainDrainHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, drainHeaderLength, 8), pipeGreen);
   mainDrainHeader.rotation.x = Math.PI / 2;
-  mainDrainHeader.position.set(1.3, H_drain, (PH_W - 6 + blkZ[0]) / 2);
+  mainDrainHeader.position.set(1.46, H_drain, (PH_W - 6 + blkZ[0]) / 2);
   group.add(mainDrainHeader);
   
   const sumpZs = [8, 24, 40];
   sumpZs.forEach(sz => {
     const drop = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 1.0, 8), pipeGreen);
-    drop.position.set(1.3, -0.4, sz);
+    drop.position.set(1.46, -0.4, sz);
     group.add(drop);
-    const conn = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.7, 8), pipeGreen);
+    const conn = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.54, 8), pipeGreen);
     conn.rotation.z = Math.PI / 2;
-    conn.position.set(1.65, -0.9, sz);
+    conn.position.set(1.73, -0.9, sz);
     group.add(conn);
   });
   
@@ -754,11 +856,11 @@ function updatePlumbingLines(n) {
     const yLvl = H_drain + i * tierSpacing;
     const drainHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, drainHeaderLength, 8), pipeGreen);
     drainHeader.rotation.x = Math.PI / 2;
-    drainHeader.position.set(1.3, yLvl, (PH_W - 6 + blkZ[0]) / 2);
+    drainHeader.position.set(1.46, yLvl, (PH_W - 6 + blkZ[0]) / 2);
     group.add(drainHeader);
     
     const riser = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, i * tierSpacing, 8), pipeGreen);
-    riser.position.set(1.3, H_drain + (i * tierSpacing) / 2, PH_W - 6);
+    riser.position.set(1.46, H_drain + (i * tierSpacing) / 2, PH_W - 6);
     group.add(riser);
   }
   
@@ -772,18 +874,98 @@ function updatePlumbingLines(n) {
         const ySup = H_supply + i * tierSpacing;
         const yDrn = H_drain + i * tierSpacing;
         
-        const rSup = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, L_pipe, 8), pipeBlue);
+        const rSup = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, L_pipe_sup, 8), pipeBlue);
         rSup.rotation.z = Math.PI / 2;
-        rSup.position.set(1.4 + L_pipe/2, ySup, zVal);
+        rSup.position.set(1.42 + L_pipe_sup/2, ySup, zVal);
         group.add(rSup);
         
-        const rDrn = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, L_pipe, 8), pipeGreen);
+        const rDrn = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, L_pipe_drn, 8), pipeGreen);
         rDrn.rotation.z = Math.PI / 2;
-        rDrn.position.set(1.3 + L_pipe/2, yDrn, zVal);
+        rDrn.position.set(1.46 + L_pipe_drn/2, yDrn, zVal);
         group.add(rDrn);
       }
     });
   }
+}
+
+/* ═══ DYNAMIC BOM CALCULATOR ═══ */
+function updateBOM(n) {
+  const N = n;
+  const legLengthM = 1.0 + (N - 1) * 0.85;
+  const legsQty = 6;
+  const longBeamsQty = 2 * N;
+  const crossBeamsQty = 3 * N;
+  const totalProfileM = legsQty * legLengthM + longBeamsQty * 3.0 + crossBeamsQty * 1.5;
+  
+  const bracketsQty = 12 + (N - 1) * 8;
+  const tnutsQty = bracketsQty * 2;
+  const screwsQty = bracketsQty * 2;
+  const endcapsQty = 6;
+  
+  const profileWeight = totalProfileM * 1.04;
+  const bracketWeight = bracketsQty * 0.045;
+  const hardwareWeight = bracketsQty * 2 * 0.008;
+  const totalSetWeight = profileWeight + bracketWeight + hardwareWeight;
+  
+  const farmProfileM = totalProfileM * 468;
+  const farmProfileKg = profileWeight * 468;
+  const farmBrackets = bracketsQty * 468;
+  const farmTnuts = tnutsQty * 468;
+  const farmScrews = screwsQty * 468;
+  const farmEndCaps = endcapsQty * 468;
+  const farmPipes = 10 * N * 468;
+  const farmCups = 150 * N * 468;
+  const farmInletCaps = 10 * N * 468;
+  const farmSpoutCaps = 10 * N * 468;
+
+  const bomDiv = document.getElementById('bom');
+  if (!bomDiv) return;
+
+  bomDiv.innerHTML = `
+    <div class="sec" style="margin-top:0">Aluminum – Per Set (${totalProfileM.toFixed(1)}m)</div>
+    <table class="bt">
+      <tr><th>Part</th><th>PN</th><th>Qty</th><th>mm</th></tr>
+      <tr><td>Long Beam</td><td>JA15-10-4040L</td><td>${longBeamsQty}</td><td>3,000</td></tr>
+      <tr><td>Cross-Beam</td><td>JA15-10-4040L</td><td>${crossBeamsQty}</td><td>1,500</td></tr>
+      <tr><td>Vertical Legs</td><td>JA15-10-4040L</td><td>${legsQty}</td><td>${Math.round(legLengthM * 1000)}</td></tr>
+      <tr class="tot"><td colspan="3"><strong>Total Profile</strong></td><td><strong>${Math.round(totalProfileM * 1000).toLocaleString()}</strong></td></tr>
+    </table>
+    
+    <div class="sec">Hardware & Pipes – Per Set</div>
+    <table class="bt">
+      <tr><th>Part</th><th>Specs / PN</th><th>Qty</th></tr>
+      <tr><td>90° Corner Bracket</td><td>J38-BK-4040</td><td>${bracketsQty}</td></tr>
+      <tr><td>T-Slot Nut M6</td><td>10mm slot</td><td>${tnutsQty}</td></tr>
+      <tr><td>Socket Screw M8</td><td>M8 × 16mm</td><td>${screwsQty}</td></tr>
+      <tr><td>Leg End Cap</td><td>Black PP</td><td>${endcapsQty}</td></tr>
+      <tr><td>NFT Channels</td><td>4" × 2" UPVC</td><td>${10 * N}</td></tr>
+      <tr><td>Net Cups 50mm</td><td>PP Mesh</td><td>${150 * N}</td></tr>
+      <tr><td>Inlet End Cap</td><td>Openable</td><td>${10 * N}</td></tr>
+      <tr><td>Outlet Spout Cap</td><td>End Cap w/ Spout</td><td>${10 * N}</td></tr>
+    </table>
+    
+    <div class="sec">Weight – Per Set</div>
+    <table class="bt">
+      <tr><td>Profile (${totalProfileM.toFixed(1)}m × 1.04 kg/m)</td><td></td><td style="font-weight:600">${profileWeight.toFixed(2)} kg</td></tr>
+      <tr><td>Brackets (${bracketsQty} × ~0.045 kg)</td><td></td><td>${bracketWeight.toFixed(2)} kg</td></tr>
+      <tr><td>Hardware (${tnutsQty + screwsQty} pcs)</td><td></td><td>${hardwareWeight.toFixed(2)} kg</td></tr>
+      <tr class="tot"><td colspan="2"><strong>Total / Set</strong></td><td><strong>~${totalSetWeight.toFixed(1)} kg</strong></td></tr>
+    </table>
+    
+    <div class="sec">Farm Totals (×468 Sets)</div>
+    <table class="bt">
+      <tr><td>Alu Profile</td><td></td><td style="color:#4ade80;font-weight:700">${Math.round(farmProfileM).toLocaleString()} m</td></tr>
+      <tr><td>Profile Weight</td><td></td><td style="color:#4ade80;font-weight:700">${Math.round(farmProfileKg).toLocaleString()} kg</td></tr>
+      <tr><td>Brackets J38-BK</td><td></td><td>${farmBrackets.toLocaleString()}</td></tr>
+      <tr><td>T-Slot Nuts M6</td><td></td><td>${farmTnuts.toLocaleString()}</td></tr>
+      <tr><td>Socket Screws M8</td><td></td><td>${farmScrews.toLocaleString()}</td></tr>
+      <tr><td>Leg End Caps</td><td></td><td>${farmEndCaps.toLocaleString()}</td></tr>
+      <tr><td>NFT Channels</td><td></td><td>${farmPipes.toLocaleString()}</td></tr>
+      <tr><td>Net Cups 50mm</td><td></td><td>${farmCups.toLocaleString()}</td></tr>
+      <tr><td>Inlet End Caps</td><td></td><td>${farmInletCaps.toLocaleString()}</td></tr>
+      <tr><td>Outlet Spout Caps</td><td></td><td>${farmSpoutCaps.toLocaleString()}</td></tr>
+    </table>
+  `;
 }
 
 /* ═══ DYNAMIC LAYOUT SYSTEM ═══ */
@@ -1387,6 +1569,7 @@ function rebuildLayout(){
   setVisibleTiers(initialLevels);
   updateLightweightBoxes(initialLevels);
   updatePlumbingLines(initialLevels);
+  updateBOM(initialLevels);
 }
 
 
@@ -1435,6 +1618,7 @@ setupSlider('sl-levels', (v, sv) => {
   setVisibleTiers(v);
   updateLightweightBoxes(v);
   updatePlumbingLines(v);
+  updateBOM(v);
 });
 
 /* ═══ COMPONENT TOGGLES ═══ */
@@ -1494,8 +1678,8 @@ const nfo={
   endcaps:'End Cap 40×40mm — Black polypropylene snap-fit cap covering exposed profile ends. 4 per set (leg bottoms). Prevents debris and provides a clean finish.',
   pipes:'4″×2″ (100×55mm) UPVC NFT Channel — Openable, single-walled. 3m long, 1% slope. 15 holes at 200mm spacing. 10 channels per set at 150mm pitch.',
   cups:'2″ (50mm) Net Cup — Tapered, holds cocopeat plug + seedling. 150 per set (15/pipe × 10 pipes), 70,200 for the full farm.',
-  supply:'1″ PVC Supply Header (Green) — Pumps A+B nutrient solution from elevated tank. T-joints at each channel.',
-  collect:'1″ PVC Collection Header (Blue) — Gravity-fed drainage into underground RCC sump.',
+  supply:'1" PVC Supply Header (Blue) — Pumps A+B nutrient solution from elevated tank. T-joints at each channel.',
+  collect:'2" PVC Collection Header (Green) — Gravity-fed drainage into underground RCC sump.',
   water:'Nutrient Film — 1-3mm depth, 1-2 L/min per channel. pH 5.5-6.0, EC 1.2-2.0 mS/cm.',
   expansion:'6-LEVEL VERTICAL SYSTEM — Stackable aluminum frames up to 6m tall. Each level adds 150 plant sites per set. Total capacity up to 70,200 plants per level, 421,200 plants at 6 levels. Gravity-fed through independent row pipes and subterranean sumps.',
 };

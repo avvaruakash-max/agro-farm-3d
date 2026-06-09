@@ -82,6 +82,7 @@ canvas{display:block;position:fixed;top:0;left:0}
 </div>
 <div class="sec">Vertical Expansion</div>
 <div class="sld-row"><label>Active Tiers</label><input type="range" id="sl-levels" min="1" max="6" value="1"><span class="sval" id="sv-levels">1 Level</span></div>
+<div class="tr" id="tr-tier-nft" style="display:none;margin-top:4px"><label><span class="d" style="background:#e5e7eb"></span>Install Tier NFT Systems</label><input type="checkbox" class="sw" id="sw-tier-nft" checked></div>
 <div class="sec">Camera</div>
 <div class="cg">
 <button class="cb" data-v="iso">Isometric</button>
@@ -148,12 +149,12 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="sps">
 <div class="sp"><div class="v">3,000</div><div class="k">Length mm</div></div>
 <div class="sp"><div class="v">1,500</div><div class="k">Width mm</div></div>
-<div class="sp"><div class="v">1,000</div><div class="k">Height mm</div></div>
+<div class="sp"><div class="v" id="sb-height">1,000</div><div class="k">Height mm</div></div>
 <div class="sp"><div class="v">JA15-10</div><div class="k">Profile</div></div>
 <div class="sp"><div class="v">J38-BK</div><div class="k">Bracket</div></div>
-<div class="sp"><div class="v" style="color:#4ade80">120</div><div class="k">Plants</div></div>
-<div class="sp"><div class="v">16.5m</div><div class="k">Alu/Set</div></div>
-<div class="sp"><div class="v">18.2</div><div class="k">kg/Set</div></div>
+<div class="sp"><div class="v" id="sb-plants" style="color:#4ade80">120</div><div class="k">Plants</div></div>
+<div class="sp"><div class="v" id="sb-alu">16.5m</div><div class="k">Alu/Set</div></div>
+<div class="sp"><div class="v" id="sb-weight">18.2</div><div class="k">kg/Set</div></div>
 </div>
 </div>
 
@@ -169,8 +170,8 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 
 /* ═══ CONSTANTS (meters) ═══ */
 const L=3, W=1.5, H=1, P=0.04, Hp=P/2;
-const PIPES=8, HOLES=15, PS=0.20, HS=0.2; // 8 channels at 200mm pitch
-const PIPE_Z0=0.05; // first channel Z=50mm (centering 8 channels)
+const PIPES=8, HOLES=15, PS=0.18, HS=0.2; // 8 channels at 180mm pitch to clear columns
+const PIPE_Z0=0.12; // first channel Z=120mm (centering 8 channels, outer edges clear legs)
 const LEGS=[[Hp,Hp],[L/2,Hp],[L-Hp,Hp],[Hp,W-Hp],[L/2,W-Hp],[L-Hp,W-Hp]]; // 6 legs
 const HOLE_EDGE=0.10; // 100mm edge clearance — centered: (3000 - 14×200) / 2 = 100mm each side
 const PW=0.10, PH=0.055, SL=0.01, SD=SL*L; // 100×55mm NFT channel
@@ -485,9 +486,9 @@ function buildSupply(){
   G.supply.add(feedPipe);
 
   // Distributor manifold at East end (X = L + 0.02) running in Z direction
-  const manifold = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 1.50, 12), mSup);
+  const manifold = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 1.43, 12), mSup);
   manifold.rotation.x = Math.PI / 2;
-  manifold.position.set(L + 0.02, hY, 0.70);
+  manifold.position.set(L + 0.02, hY, 0.665);
   manifold.castShadow = true;
   G.supply.add(manifold);
 
@@ -594,108 +595,111 @@ function buildExpansion(){
       bk.castShadow=true;tierGroup.add(bk);
     });
     
-    const hg2=new THREE.CylinderGeometry(0.024,0.024,0.004,12);
-    const cg2=new THREE.CylinderGeometry(0.024,0.017,0.035,10);
-    const rg2=new THREE.TorusGeometry(0.026,0.0025,6,12);
-    for(let i=0;i<PIPES;i++){
-      const z=PIPE_Z0+i*PS;
-      const my=tby+PH/2;
-      const p=new THREE.Mesh(new THREE.BoxGeometry(L,PH,PW),mPipe);
-      p.position.set(L/2,my,z);p.rotation.z=Math.atan(SL); // positive slope
-      p.castShadow=true;p.receiveShadow=true;tierGroup.add(p);
-      const inY=tby+PH/2+SD/2, outY=tby+PH/2-SD/2;
-      const ecg=new THREE.BoxGeometry(0.005,PH+0.004,PW+0.004);
-      const cl=new THREE.Mesh(ecg,mPCap);cl.position.set(0,outY,z);tierGroup.add(cl); // West end is low
-      const cr=new THREE.Mesh(ecg,mPCap);cr.position.set(L,inY,z);tierGroup.add(cr);  // East end is high
-      const sp=new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,0.04,8),mPCap);
-      sp.position.set(-0.007,outY-0.02,z);tierGroup.add(sp);
-      
-      for(let j=0;j<HOLES;j++){
-        const hx=HOLE_EDGE+j*HS;
-        const hy=tby+PH+SL*(hx-L/2);
-        const hMesh=new THREE.Mesh(hg2,mHole);hMesh.position.set(hx,hy,z);tierGroup.add(hMesh);
-        const c=new THREE.Mesh(cg2,mCup);c.position.set(hx,hy+0.014,z);tierGroup.add(c);
-        const r=new THREE.Mesh(rg2,mCupR);r.rotation.x=Math.PI/2;r.position.set(hx,hy+0.03,z);tierGroup.add(r);
+    const showTierNFT = document.getElementById('sw-tier-nft')?.checked ?? true;
+    if (showTierNFT) {
+      const hg2=new THREE.CylinderGeometry(0.024,0.024,0.004,12);
+      const cg2=new THREE.CylinderGeometry(0.024,0.017,0.035,10);
+      const rg2=new THREE.TorusGeometry(0.026,0.0025,6,12);
+      for(let i=0;i<PIPES;i++){
+        const z=PIPE_Z0+i*PS;
+        const my=tby+PH/2;
+        const p=new THREE.Mesh(new THREE.BoxGeometry(L,PH,PW),mPipe);
+        p.position.set(L/2,my,z);p.rotation.z=Math.atan(SL); // positive slope
+        p.castShadow=true;p.receiveShadow=true;tierGroup.add(p);
+        const inY=tby+PH/2+SD/2, outY=tby+PH/2-SD/2;
+        const ecg=new THREE.BoxGeometry(0.005,PH+0.004,PW+0.004);
+        const cl=new THREE.Mesh(ecg,mPCap);cl.position.set(0,outY,z);tierGroup.add(cl); // West end is low
+        const cr=new THREE.Mesh(ecg,mPCap);cr.position.set(L,inY,z);tierGroup.add(cr);  // East end is high
+        const sp=new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,0.04,8),mPCap);
+        sp.position.set(-0.007,outY-0.02,z);tierGroup.add(sp);
+        
+        for(let j=0;j<HOLES;j++){
+          const hx=HOLE_EDGE+j*HS;
+          const hy=tby+PH+SL*(hx-L/2);
+          const hMesh=new THREE.Mesh(hg2,mHole);hMesh.position.set(hx,hy,z);tierGroup.add(hMesh);
+          const c=new THREE.Mesh(cg2,mCup);c.position.set(hx,hy+0.014,z);tierGroup.add(c);
+          const r=new THREE.Mesh(rg2,mCupR);r.rotation.x=Math.PI/2;r.position.set(hx,hy+0.03,z);tierGroup.add(r);
+        }
+        const wg=new THREE.PlaneGeometry(L-0.02,PW*0.65);
+        const wm=new THREE.Mesh(wg,mWat);
+        wm.rotation.x=-Math.PI/2;wm.rotation.z=Math.atan(SL);
+        wm.position.set(L/2,tby+0.005,z);tierGroup.add(wm);
       }
-      const wg=new THREE.PlaneGeometry(L-0.02,PW*0.65);
-      const wm=new THREE.Mesh(wg,mWat);
-      wm.rotation.x=-Math.PI/2;wm.rotation.z=Math.atan(SL);
-      wm.position.set(L/2,tby+0.005,z);tierGroup.add(wm);
-    }
-    
-    // Tier Supply Pipe
-    const tsY=tby+PH+0.05;
-    const lp = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, L + 0.10, 8), mSup);
-    lp.rotation.z = Math.PI / 2;
-    lp.position.set((L - 0.06)/2, tsY, -0.05);
-    lp.castShadow = true;
-    tierGroup.add(lp);
-
-    // Elbow sphere at West end
-    const elbW = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), mSup);
-    elbW.position.set(-0.08, tsY, -0.05);
-    tierGroup.add(elbW);
-
-    // Vertical feed pipe from tier floor to header height
-    const fp = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, tsY - (tH + Hp), 8), mSup);
-    fp.position.set(-0.08, (tsY + tH + Hp)/2, -0.05);
-    tierGroup.add(fp);
-
-    // Distributor manifold at East end (X = L + 0.02)
-    const manifold = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 1.50, 12), mSup);
-    manifold.rotation.x = Math.PI / 2;
-    manifold.position.set(L + 0.02, tsY, 0.70);
-    manifold.castShadow = true;
-    tierGroup.add(manifold);
-
-    // Elbow sphere at East end
-    const elbE = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), mSup);
-    elbE.position.set(L + 0.02, tsY, -0.05);
-    tierGroup.add(elbE);
-
-    // Micro branches from manifold into channel inlets
-    for(let i=0;i<PIPES;i++){
-      const z=PIPE_Z0+i*PS;
-      const tNode = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), mSup);
-      tNode.position.set(L + 0.02, tsY, z);
-      tierGroup.add(tNode);
-
-      const br = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.07, 8), mSup);
-      br.rotation.z = Math.PI / 2;
-      br.position.set(L - 0.015, tsY, z);
-      tierGroup.add(br);
-
-      const dr = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.05, 8), mSup);
-      dr.position.set(L - 0.05, tsY - 0.025, z);
-      tierGroup.add(dr);
-    }
-    
-    // Tier Collection Pipe
-    const outY_tier = tby + PH/2 - SD/2;
-    const tcY=outY_tier - 0.08;
-    const chdr=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,W,12),mCol);
-    chdr.rotation.x=Math.PI/2;chdr.position.set(-0.04,tcY,W/2);tierGroup.add(chdr);
-    for(let i=0;i<PIPES;i++){
-      const z=PIPE_Z0+i*PS;
-      const horiz=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.033,8),mCol);
-      horiz.rotation.z=Math.PI/2;
-      horiz.position.set(-0.0235, tcY, z);
-      tierGroup.add(horiz);
       
-      const spoutBottomY = outY_tier - 0.04;
-      const vert=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007, spoutBottomY - tcY, 8),mCol);
-      vert.position.set(-0.007, (spoutBottomY + tcY)/2, z);
-      tierGroup.add(vert);
+      // Tier Supply Pipe
+      const tsY=tby+PH+0.05;
+      const lp = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, L + 0.10, 8), mSup);
+      lp.rotation.z = Math.PI / 2;
+      lp.position.set((L - 0.06)/2, tsY, -0.05);
+      lp.castShadow = true;
+      tierGroup.add(lp);
+
+      // Elbow sphere at West end
+      const elbW = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), mSup);
+      elbW.position.set(-0.08, tsY, -0.05);
+      tierGroup.add(elbW);
+
+      // Vertical feed pipe from tier floor to header height
+      const fp = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, tsY - (tH + Hp), 8), mSup);
+      fp.position.set(-0.08, (tsY + tH + Hp)/2, -0.05);
+      tierGroup.add(fp);
+
+      // Distributor manifold at East end (X = L + 0.02)
+      const manifold = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 1.43, 12), mSup);
+      manifold.rotation.x = Math.PI / 2;
+      manifold.position.set(L + 0.02, tsY, 0.665);
+      manifold.castShadow = true;
+      tierGroup.add(manifold);
+
+      // Elbow sphere at East end
+      const elbE = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), mSup);
+      elbE.position.set(L + 0.02, tsY, -0.05);
+      tierGroup.add(elbE);
+
+      // Micro branches from manifold into channel inlets
+      for(let i=0;i<PIPES;i++){
+        const z=PIPE_Z0+i*PS;
+        const tNode = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), mSup);
+        tNode.position.set(L + 0.02, tsY, z);
+        tierGroup.add(tNode);
+
+        const br = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.07, 8), mSup);
+        br.rotation.z = Math.PI / 2;
+        br.position.set(L - 0.015, tsY, z);
+        tierGroup.add(br);
+
+        const dr = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.05, 8), mSup);
+        dr.position.set(L - 0.05, tsY - 0.025, z);
+        tierGroup.add(dr);
+      }
       
-      const spNode1=new THREE.Mesh(new THREE.SphereGeometry(0.028,8,8),mCol);spNode1.position.set(-0.04,tcY,z);tierGroup.add(spNode1);
-      const spNode2=new THREE.Mesh(new THREE.SphereGeometry(0.011,8,8),mCol);spNode2.position.set(-0.007,tcY,z);tierGroup.add(spNode2);
+      // Tier Collection Pipe
+      const outY_tier = tby + PH/2 - SD/2;
+      const tcY=outY_tier - 0.08;
+      const chdr=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,W,12),mCol);
+      chdr.rotation.x=Math.PI/2;chdr.position.set(-0.04,tcY,W/2);tierGroup.add(chdr);
+      for(let i=0;i<PIPES;i++){
+        const z=PIPE_Z0+i*PS;
+        const horiz=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.033,8),mCol);
+        horiz.rotation.z=Math.PI/2;
+        horiz.position.set(-0.0235, tcY, z);
+        tierGroup.add(horiz);
+        
+        const spoutBottomY = outY_tier - 0.04;
+        const vert=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007, spoutBottomY - tcY, 8),mCol);
+        vert.position.set(-0.007, (spoutBottomY + tcY)/2, z);
+        tierGroup.add(vert);
+        
+        const spNode1=new THREE.Mesh(new THREE.SphereGeometry(0.028,8,8),mCol);spNode1.position.set(-0.04,tcY,z);tierGroup.add(spNode1);
+        const spNode2=new THREE.Mesh(new THREE.SphereGeometry(0.011,8,8),mCol);spNode2.position.set(-0.007,tcY,z);tierGroup.add(spNode2);
+      }
+      
+      const dropPipeGeo=new THREE.CylinderGeometry(0.025,0.025,tierSpacing,8);
+      const dp=new THREE.Mesh(dropPipeGeo,mCol);
+      dp.position.set(-0.04, tcY - tierSpacing/2, W/2);
+      dp.castShadow=true;
+      tierGroup.add(dp);
     }
-    
-    const dropPipeGeo=new THREE.CylinderGeometry(0.025,0.025,tierSpacing,8);
-    const dp=new THREE.Mesh(dropPipeGeo,mCol);
-    dp.position.set(-0.04, tcY - tierSpacing/2, W/2);
-    dp.castShadow=true;
-    tierGroup.add(dp);
   }
 }
 
@@ -778,6 +782,9 @@ function updatePlumbingLines(n) {
   if (!group) return;
   group.clear();
   
+  const showTierNFT = document.getElementById('sw-tier-nft')?.checked ?? true;
+  const n_nft = showTierNFT ? n : 1;
+
   const pipeBlue = new THREE.MeshStandardMaterial({color:0x3b82f6,metalness:0.4,roughness:0.4});
   const pipeGreen = new THREE.MeshStandardMaterial({color:0x22c55e,metalness:0.4,roughness:0.4});
   const tierSpacing = 0.85;
@@ -822,7 +829,7 @@ function updatePlumbingLines(n) {
   mainSupHeader.position.set(1.42, H_supply, (PH_W - 6 + blkZ[0]) / 2);
   group.add(mainSupHeader);
   
-  for (let i = 1; i < n; i++) {
+  for (let i = 1; i < n_nft; i++) {
     const yLvl = H_supply + i * tierSpacing;
     const supHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, supHeaderLength, 8), pipeBlue);
     supHeader.rotation.x = Math.PI / 2;
@@ -852,7 +859,7 @@ function updatePlumbingLines(n) {
     group.add(conn);
   });
   
-  for (let i = 1; i < n; i++) {
+  for (let i = 1; i < n_nft; i++) {
     const yLvl = H_drain + i * tierSpacing;
     const drainHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, drainHeaderLength, 8), pipeGreen);
     drainHeader.rotation.x = Math.PI / 2;
@@ -870,7 +877,7 @@ function updatePlumbingLines(n) {
     const zB = blkZ[b] + W + RW + W/2;
     
     [zA, zB].forEach(zVal => {
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < n_nft; i++) {
         const ySup = H_supply + i * tierSpacing;
         const yDrn = H_drain + i * tierSpacing;
         
@@ -891,6 +898,9 @@ function updatePlumbingLines(n) {
 /* ═══ DYNAMIC BOM CALCULATOR ═══ */
 function updateBOM(n) {
   const N = n;
+  const showTierNFT = document.getElementById('sw-tier-nft')?.checked ?? true;
+  const N_nft = showTierNFT ? N : 1;
+
   const legLengthM = 1.0 + (N - 1) * 0.85;
   const legsQty = 6;
   const longBeamsQty = 2 * N;
@@ -913,10 +923,22 @@ function updateBOM(n) {
   const farmTnuts = tnutsQty * 468;
   const farmScrews = screwsQty * 468;
   const farmEndCaps = endcapsQty * 468;
-  const farmPipes = PIPES * N * 468;
-  const farmCups = PIPES * HOLES * N * 468;
-  const farmInletCaps = PIPES * N * 468;
-  const farmSpoutCaps = PIPES * N * 468;
+  const farmPipes = PIPES * N_nft * 468;
+  const farmCups = PIPES * HOLES * N_nft * 468;
+  const farmInletCaps = PIPES * N_nft * 468;
+  const farmSpoutCaps = PIPES * N_nft * 468;
+
+  const sbHeight = document.getElementById('sb-height');
+  if (sbHeight) sbHeight.textContent = Math.round((1.0 + (N - 1) * 0.85) * 1000).toLocaleString();
+
+  const sbPlants = document.getElementById('sb-plants');
+  if (sbPlants) sbPlants.textContent = (PIPES * HOLES * N_nft).toLocaleString();
+
+  const sbAlu = document.getElementById('sb-alu');
+  if (sbAlu) sbAlu.textContent = totalProfileM.toFixed(1) + 'm';
+
+  const sbWeight = document.getElementById('sb-weight');
+  if (sbWeight) sbWeight.textContent = totalSetWeight.toFixed(1);
 
   const bomDiv = document.getElementById('bom');
   if (!bomDiv) return;
@@ -938,10 +960,10 @@ function updateBOM(n) {
       <tr><td>T-Slot Nut M6</td><td>10mm slot</td><td>${tnutsQty}</td></tr>
       <tr><td>Socket Screw M8</td><td>M8 × 16mm</td><td>${screwsQty}</td></tr>
       <tr><td>Leg End Cap</td><td>Black PP</td><td>${endcapsQty}</td></tr>
-      <tr><td>NFT Channels</td><td>4" × 2" UPVC</td><td>${PIPES * N}</td></tr>
-      <tr><td>Net Cups 50mm</td><td>PP Mesh</td><td>${PIPES * HOLES * N}</td></tr>
-      <tr><td>Inlet End Cap</td><td>Openable</td><td>${PIPES * N}</td></tr>
-      <tr><td>Outlet Spout Cap</td><td>End Cap w/ Spout</td><td>${PIPES * N}</td></tr>
+      <tr><td>NFT Channels</td><td>4" × 2" UPVC</td><td>${PIPES * N_nft}</td></tr>
+      <tr><td>Net Cups 50mm</td><td>PP Mesh</td><td>${PIPES * HOLES * N_nft}</td></tr>
+      <tr><td>Inlet End Cap</td><td>Openable</td><td>${PIPES * N_nft}</td></tr>
+      <tr><td>Outlet Spout Cap</td><td>End Cap w/ Spout</td><td>${PIPES * N_nft}</td></tr>
     </table>
     
     <div class="sec">Weight – Per Set</div>
@@ -966,6 +988,18 @@ function updateBOM(n) {
       <tr><td>Outlet Spout Caps</td><td></td><td>${farmSpoutCaps.toLocaleString()}</td></tr>
     </table>
   `;
+}
+
+function rebuildExpansionTiers() {
+  buildExpansion();
+  TMPL['expansion'] = [...G.expansion.children];
+  rebuildLayout();
+  const levelsSlider = document.getElementById('sl-levels');
+  const v = levelsSlider ? parseInt(levelsSlider.value) : 1;
+  setVisibleTiers(v);
+  updateLightweightBoxes(v);
+  updatePlumbingLines(v);
+  updateBOM(v);
 }
 
 /* ═══ DYNAMIC LAYOUT SYSTEM ═══ */
@@ -1566,6 +1600,10 @@ function rebuildLayout(){
 
   const levelsSlider = document.getElementById('sl-levels');
   const initialLevels = levelsSlider ? parseInt(levelsSlider.value) : 1;
+  const trTierNft = document.getElementById('tr-tier-nft');
+  if (trTierNft) {
+    trTierNft.style.display = initialLevels > 1 ? 'flex' : 'none';
+  }
   setVisibleTiers(initialLevels);
   updateLightweightBoxes(initialLevels);
   updatePlumbingLines(initialLevels);
@@ -1615,11 +1653,22 @@ document.getElementById('sw-hideAll').addEventListener('change',(e)=>{
 /* ═══ VERTICAL LEVELS SLIDER HANDLER ═══ */
 setupSlider('sl-levels', (v, sv) => {
   sv.textContent = v === 1 ? '1 Level' : v + ' Levels';
+  const trTierNft = document.getElementById('tr-tier-nft');
+  if (trTierNft) {
+    trTierNft.style.display = v > 1 ? 'flex' : 'none';
+  }
   setVisibleTiers(v);
   updateLightweightBoxes(v);
   updatePlumbingLines(v);
   updateBOM(v);
 });
+
+const swTierNft = document.getElementById('sw-tier-nft');
+if (swTierNft) {
+  swTierNft.addEventListener('change', () => {
+    rebuildExpansionTiers();
+  });
+}
 
 /* ═══ COMPONENT TOGGLES ═══ */
 document.querySelectorAll('.sw[data-g]').forEach(s=>{

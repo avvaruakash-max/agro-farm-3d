@@ -61,7 +61,7 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="tr"><label><span class="d" style="background:#a8a29e"></span>T-Nuts & Screws</label><input type="checkbox" class="sw" checked data-g="hardware"></div>
 <div class="tr"><label><span class="d" style="background:#525252"></span>End Caps</label><input type="checkbox" class="sw" checked data-g="endcaps"></div>
 <div class="tr"><label><span class="d" style="background:#e5e7eb"></span>NFT Channels</label><input type="checkbox" class="sw" checked data-g="pipes"></div>
-<div class="tr"><label><span class="d" style="background:#4ade80"></span>Net Cups (98)</label><input type="checkbox" class="sw" checked data-g="cups"></div>
+<div class="tr"><label><span class="d" style="background:#4ade80"></span>Net Cups (150)</label><input type="checkbox" class="sw" checked data-g="cups"></div>
 <div class="tr"><label><span class="d" style="background:#22c55e"></span>Supply Pipe</label><input type="checkbox" class="sw" checked data-g="supply"></div>
 <div class="tr"><label><span class="d" style="background:#3b82f6"></span>Collection Pipe</label><input type="checkbox" class="sw" checked data-g="collect"></div>
 <div class="tr"><label><span class="d" style="background:#60a5fa"></span>Water Film</label><input type="checkbox" class="sw" checked data-g="water"></div>
@@ -80,9 +80,8 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="tr"><label><span class="d" style="background:#8b5cf6"></span>Plumbing System</label><input type="checkbox" class="sw ovl" checked data-ovl="plumbing"></div>
 <div class="tr"><label><span class="d" style="background:#fbbf24"></span>Dimensions</label><input type="checkbox" class="sw" checked data-g="dims"></div>
 </div>
-<div class="sec">Tier 2 Expansion</div>
-<div class="tr"><label><span class="d" style="background:#a78bfa"></span>All Tiers</label><input type="checkbox" class="sw" id="sw-allT2"></div>
-<div id="t2-per-set" style="padding-left:8px"></div>
+<div class="sec">Vertical Expansion</div>
+<div class="sld-row"><label>Active Tiers</label><input type="range" id="sl-levels" min="1" max="6" value="1"><span class="sval" id="sv-levels">1 Level</span></div>
 <div class="sec">Camera</div>
 <div class="cg">
 <button class="cb" data-v="iso">Isometric</button>
@@ -131,17 +130,17 @@ canvas{display:block;position:fixed;top:0;left:0}
 <tr class="tot"><td colspan="2"><strong>Total / Set</strong></td><td><strong>~14.8 kg</strong></td></tr>
 </table>
 
-<div class="sec">Farm Totals (×520 Sets)</div>
+<div class="sec">Farm Totals (×468 Sets)</div>
 <table class="bt">
-<tr><td>Alu Profile</td><td></td><td style="color:#4ade80;font-weight:700">7,020 m</td></tr>
-<tr><td>Profile Weight</td><td></td><td style="color:#4ade80;font-weight:700">7,301 kg</td></tr>
-<tr><td>Alu 40×40 Profile</td><td>13.5m</td><td>7,020m</td></tr>
-<tr><td>Brackets J38-BK</td><td>12</td><td>6,240</td></tr>
-<tr><td>T-Slot Nuts M6</td><td></td><td>12,480</td></tr>
-<tr><td>Socket Screws M8</td><td></td><td>12,480</td></tr>
-<tr><td>End Caps</td><td></td><td>3,120</td></tr>
-<tr><td>NFT Pipes 4×2″</td><td></td><td>3,640</td></tr>
-<tr><td>Net Cups 50mm</td><td></td><td>50,960</td></tr>
+<tr><td>Alu Profile</td><td></td><td style="color:#4ade80;font-weight:700">6,318 m</td></tr>
+<tr><td>Profile Weight</td><td></td><td style="color:#4ade80;font-weight:700">6,571 kg</td></tr>
+<tr><td>Alu 40×40 Profile</td><td>13.5m</td><td>6,318m</td></tr>
+<tr><td>Brackets J38-BK</td><td>12</td><td>5,616</td></tr>
+<tr><td>T-Slot Nuts M6</td><td></td><td>11,232</td></tr>
+<tr><td>Socket Screws M8</td><td></td><td>11,232</td></tr>
+<tr><td>End Caps</td><td></td><td>2,808</td></tr>
+<tr><td>NFT Pipes 4×2″</td><td></td><td>4,680</td></tr>
+<tr><td>Net Cups 50mm</td><td></td><td>70,200</td></tr>
 </table>
 </div>
 
@@ -152,7 +151,7 @@ canvas{display:block;position:fixed;top:0;left:0}
 <div class="sp"><div class="v">1,000</div><div class="k">Height mm</div></div>
 <div class="sp"><div class="v">JA15-10</div><div class="k">Profile</div></div>
 <div class="sp"><div class="v">J38-BK</div><div class="k">Bracket</div></div>
-<div class="sp"><div class="v" style="color:#4ade80">98</div><div class="k">Plants</div></div>
+<div class="sp"><div class="v" style="color:#4ade80">150</div><div class="k">Plants</div></div>
 <div class="sp"><div class="v">16.5m</div><div class="k">Alu/Set</div></div>
 <div class="sp"><div class="v">18.2</div><div class="k">kg/Set</div></div>
 </div>
@@ -170,10 +169,10 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 
 /* ═══ CONSTANTS (meters) ═══ */
 const L=3, W=1.5, H=1, P=0.04, Hp=P/2;
-const PIPES=7, HOLES=14, PS=0.20, HS=0.2; // 7 channels at 200mm pitch (100mm gap, optimal airflow)
-const PIPE_Z0=0.15; // first channel Z=150mm (54mm clearance from corner plates)
+const PIPES=10, HOLES=15, PS=0.15, HS=0.2; // 10 channels at 150mm pitch
+const PIPE_Z0=0.075; // first channel Z=75mm (centering 10 channels)
 const LEGS=[[Hp,Hp],[L/2,Hp],[L-Hp,Hp],[Hp,W-Hp],[L/2,W-Hp],[L-Hp,W-Hp]]; // 6 legs
-const HOLE_EDGE=0.20; // 200mm edge clearance — centered: (3000 - 13×200) / 2 = 200mm each side
+const HOLE_EDGE=0.10; // 100mm edge clearance — centered: (3000 - 14×200) / 2 = 100mm each side
 const PW=0.10, PH=0.055, SL=0.01, SD=SL*L; // 100×55mm NFT channel
 const RH=H-Hp; // rail height
 const CTR=new THREE.Vector3(L/2,H/2,W/2);
@@ -491,124 +490,112 @@ function buildCollect(){
     const br=new THREE.Mesh(bg,mCol);br.rotation.z=Math.PI/2;br.position.set(L+0.04,hY,z);G.collect.add(br);
     G.collect.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mCol).translateX(L+0.08).translateY(hY).translateZ(z));
   }
+  // Drop pipe from collection header to row drain line at ground level (Y = 0.1)
+  const dropPipeGeo=new THREE.CylinderGeometry(0.012,0.012,hY-0.1,8);
+  const dropPipe=new THREE.Mesh(dropPipeGeo,mCol);
+  dropPipe.position.set(L+0.08,(hY+0.1)/2,W/2);
+  dropPipe.castShadow=true;
+  G.collect.add(dropPipe);
 }
 
-/* ═══ EXPANSION PREVIEW — FULL TIER 2 ═══ */
-const T2={}; // Tier 2 sub-groups (for expansion toggle)
 function buildExpansion(){
-  /* Tier spacing: 600mm gives ~420mm clearance above Tier 1 cups for plant growth */
-  const eH=0.6; // leg extension height (meters)
-  const t2=RH+eH; // Tier 2 beam rail height
-  const t2by=t2+Hp+0.003; // Tier 2 pipe base y
-
-  // Create Tier 2 sub-groups INSIDE their respective component groups
-  T2.frame=new THREE.Group(); G.frame.add(T2.frame);
-  T2.brackets=new THREE.Group(); G.brackets.add(T2.brackets);
-  T2.pipes=new THREE.Group(); G.pipes.add(T2.pipes);
-  T2.cups=new THREE.Group(); G.cups.add(T2.cups);
-  T2.supply=new THREE.Group(); G.supply.add(T2.supply);
-  T2.collect=new THREE.Group(); G.collect.add(T2.collect);
-  T2.water=new THREE.Group(); G.water.add(T2.water);
-  // All start hidden (expansion toggle is off by default)
-  Object.values(T2).forEach(g=>g.visible=false);
-  G.expansion.visible=false;
-
+  G.expansion.clear();
+  const tierSpacing = 0.85;
   const mJP=new THREE.MeshStandardMaterial({color:0xf59e0b,metalness:0.6,roughness:0.3,transparent:true,opacity:0.65});
-
-  // ── Extension Legs + Joining Plates (6 legs) ──
-  LEGS.forEach(([x,z])=>{
-    addProfile(T2.frame,eH,'y',x,RH+eH/2,z);
-    const jp=new THREE.Mesh(new THREE.BoxGeometry(P*1.3,P*0.6,P*1.3),mJP);
-    jp.position.set(x,RH,z);G.expansion.add(jp);
-  });
-
-  // ── Tier 2 Frame Beams → T2.frame ──
-  addProfile(T2.frame,L,'x',L/2,t2,Hp);
-  addProfile(T2.frame,L,'x',L/2,t2,W-Hp);
-  addProfile(T2.frame,W,'z',Hp,t2,W/2);
-  addProfile(T2.frame,W,'z',L-Hp,t2,W/2);
-  addProfile(T2.frame,W,'z',L/2,t2,W/2);
-
-  // ── Tier 2 Brackets → T2.brackets ──
-  [[Hp+P/2,Hp],[L-Hp-P/2,Hp],[Hp+P/2,W-Hp],[L-Hp-P/2,W-Hp]].forEach(([bx,bz])=>{
-    const bk=new THREE.Mesh(bkGeo,mBrk);
-    bk.position.set(bx,t2-BK_S/2,bz);bk.castShadow=true;T2.brackets.add(bk);
-  });
-  [[Hp,Hp+P/2],[L-Hp,Hp+P/2],[Hp,W-Hp-P/2],[L-Hp,W-Hp-P/2]].forEach(([bx,bz],i)=>{
-    const bk=new THREE.Mesh(bkGeo,mBrk);
-    bk.position.set(bx,t2-BK_S/2,bz);bk.rotation.y=(i<2)?Math.PI/2:-Math.PI/2;
-    bk.castShadow=true;T2.brackets.add(bk);
-  });
-
-  // ── Tier 2 NFT Pipes → T2.pipes, Cups → T2.cups, Water → T2.water ──
-  const hg2=new THREE.CylinderGeometry(0.024,0.024,0.004,12);
-  const cg2=new THREE.CylinderGeometry(0.024,0.017,0.035,10);
-  const rg2=new THREE.TorusGeometry(0.026,0.0025,6,12);
-  for(let i=0;i<PIPES;i++){
-    const z=PIPE_Z0+i*PS;
-    const my=t2by+PH/2;
-    // Pipe body
-    const p=new THREE.Mesh(new THREE.BoxGeometry(L,PH,PW),mPipe);
-    p.position.set(L/2,my,z);p.rotation.z=-Math.atan(SL);
-    p.castShadow=true;p.receiveShadow=true;T2.pipes.add(p);
-    // Pipe end caps
-    const inY=t2by+PH/2+SD/2, outY=t2by+PH/2-SD/2;
-    const ecg=new THREE.BoxGeometry(0.005,PH+0.004,PW+0.004);
-    T2.pipes.add(new THREE.Mesh(ecg,mPCap).translateX(0).translateY(inY).translateZ(z));
-    T2.pipes.add(new THREE.Mesh(ecg,mPCap).translateX(L).translateY(outY).translateZ(z));
-    // Spout
-    T2.pipes.add(new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,0.04,8),mPCap).translateX(L+0.007).translateY(outY-0.02).translateZ(z));
-    // 14 Holes + Net Cups
-    for(let j=0;j<HOLES;j++){
-      const hx=HOLE_EDGE+j*HS;
-      const hy=t2by+PH+SL*(L/2-hx);
-      T2.pipes.add(new THREE.Mesh(hg2,mHole).translateX(hx).translateY(hy).translateZ(z));
-      const c=new THREE.Mesh(cg2,mCup);c.position.set(hx,hy+0.014,z);T2.cups.add(c);
-      const r=new THREE.Mesh(rg2,mCupR);r.rotation.x=Math.PI/2;r.position.set(hx,hy+0.03,z);T2.cups.add(r);
+  
+  for(let tier=2; tier<=6; tier++) {
+    const yOffset = (tier - 1) * tierSpacing;
+    const tH = RH + yOffset;
+    const tby = tH + Hp + 0.003;
+    
+    const tierGroup = new THREE.Group();
+    tierGroup.name = "tier_" + tier;
+    G.expansion.add(tierGroup);
+    
+    LEGS.forEach(([x,z])=>{
+      const legGeo = new THREE.BoxGeometry(P, tierSpacing, P);
+      const leg = new THREE.Mesh(legGeo, mAlu);
+      leg.position.set(x, RH + yOffset - tierSpacing/2, z);
+      leg.castShadow = true; leg.receiveShadow = true;
+      tierGroup.add(leg);
+      
+      const jp=new THREE.Mesh(new THREE.BoxGeometry(P*1.3,P*0.6,P*1.3),mJP);
+      jp.position.set(x, RH + yOffset - tierSpacing, z);
+      tierGroup.add(jp);
+    });
+    
+    addProfile(tierGroup, L, 'x', L/2, tH, Hp);
+    addProfile(tierGroup, L, 'x', L/2, tH, W-Hp);
+    addProfile(tierGroup, W, 'z', Hp, tH, W/2);
+    addProfile(tierGroup, W, 'z', L-Hp, tH, W/2);
+    addProfile(tierGroup, W, 'z', L/2, tH, W/2);
+    
+    [[Hp+P/2,Hp],[L-Hp-P/2,Hp],[Hp+P/2,W-Hp],[L-Hp-P/2,W-Hp]].forEach(([bx,bz])=>{
+      const bk=new THREE.Mesh(bkGeo,mBrk);
+      bk.position.set(bx,tH-BK_S/2,bz);bk.castShadow=true;tierGroup.add(bk);
+    });
+    [[Hp,Hp+P/2],[L-Hp,Hp+P/2],[Hp,W-Hp-P/2],[L-Hp,W-Hp-P/2]].forEach(([bx,bz],i)=>{
+      const bk=new THREE.Mesh(bkGeo,mBrk);
+      bk.position.set(bx,tH-BK_S/2,bz);bk.rotation.y=(i<2)?Math.PI/2:-Math.PI/2;
+      bk.castShadow=true;tierGroup.add(bk);
+    });
+    
+    const hg2=new THREE.CylinderGeometry(0.024,0.024,0.004,12);
+    const cg2=new THREE.CylinderGeometry(0.024,0.017,0.035,10);
+    const rg2=new THREE.TorusGeometry(0.026,0.0025,6,12);
+    for(let i=0;i<PIPES;i++){
+      const z=PIPE_Z0+i*PS;
+      const my=tby+PH/2;
+      const p=new THREE.Mesh(new THREE.BoxGeometry(L,PH,PW),mPipe);
+      p.position.set(L/2,my,z);p.rotation.z=-Math.atan(SL);
+      p.castShadow=true;p.receiveShadow=true;tierGroup.add(p);
+      const inY=tby+PH/2+SD/2, outY=tby+PH/2-SD/2;
+      const ecg=new THREE.BoxGeometry(0.005,PH+0.004,PW+0.004);
+      const cl=new THREE.Mesh(ecg,mPCap);cl.position.set(0,inY,z);tierGroup.add(cl);
+      const cr=new THREE.Mesh(ecg,mPCap);cr.position.set(L,outY,z);tierGroup.add(cr);
+      const sp=new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.009,0.04,8),mPCap);
+      sp.position.set(L+0.007,outY-0.02,z);tierGroup.add(sp);
+      
+      const dropPipeGeo=new THREE.CylinderGeometry(0.006,0.006,tierSpacing-PH,8);
+      const dp=new THREE.Mesh(dropPipeGeo,mCol);
+      dp.position.set(L+0.007,outY-tierSpacing/2,z);
+      tierGroup.add(dp);
+      
+      for(let j=0;j<HOLES;j++){
+        const hx=HOLE_EDGE+j*HS;
+        const hy=tby+PH+SL*(L/2-hx);
+        const hMesh=new THREE.Mesh(hg2,mHole);hMesh.position.set(hx,hy,z);tierGroup.add(hMesh);
+        const c=new THREE.Mesh(cg2,mCup);c.position.set(hx,hy+0.014,z);tierGroup.add(c);
+        const r=new THREE.Mesh(rg2,mCupR);r.rotation.x=Math.PI/2;r.position.set(hx,hy+0.03,z);tierGroup.add(r);
+      }
+      const wg=new THREE.PlaneGeometry(L-0.02,PW*0.65);
+      const wm=new THREE.Mesh(wg,mWat);
+      wm.rotation.x=-Math.PI/2;wm.rotation.z=-Math.atan(SL);
+      wm.position.set(L/2,tby+0.005,z);tierGroup.add(wm);
     }
-    // Water film
-    const wg=new THREE.PlaneGeometry(L-0.02,PW*0.65);
-    const wm=new THREE.Mesh(wg,mWat);
-    wm.rotation.x=-Math.PI/2;wm.rotation.z=-Math.atan(SL);
-    wm.position.set(L/2,t2by+0.005,z);T2.water.add(wm);
+    
+    const tsY=tby+PH+0.05;
+    const shdr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,W,12),mSup);
+    shdr.rotation.x=Math.PI/2;shdr.position.set(-0.08,tsY,W/2);tierGroup.add(shdr);
+    for(let i=0;i<PIPES;i++){
+      const z=PIPE_Z0+i*PS;
+      const br=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.1,8),mSup);
+      br.rotation.z=Math.PI/2;br.position.set(-0.03,tsY,z);tierGroup.add(br);
+      const spNode=new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mSup);spNode.position.set(-0.08,tsY,z);tierGroup.add(spNode);
+      const dr=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.05,8),mSup);
+      dr.position.set(0.02,tsY-0.025,z);tierGroup.add(dr);
+    }
+    
+    const tcY=tby+PH/2-SD/2-0.05;
+    const chdr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,W,12),mCol);
+    chdr.rotation.x=Math.PI/2;chdr.position.set(L+0.08,tcY,W/2);tierGroup.add(chdr);
+    for(let i=0;i<PIPES;i++){
+      const z=PIPE_Z0+i*PS;
+      const br=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.08,8),mCol);
+      br.rotation.z=Math.PI/2;br.position.set(L+0.04,tcY,z);tierGroup.add(br);
+      const spNode=new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mCol);spNode.position.set(L+0.08,tcY,z);tierGroup.add(spNode);
+    }
   }
-
-  // ── Tier 2 Supply Header → T2.supply ──
-  const t2sY=t2by+PH+0.05;
-  const shdr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,W,12),mSup);
-  shdr.rotation.x=Math.PI/2;shdr.position.set(-0.08,t2sY,W/2);T2.supply.add(shdr);
-  for(let i=0;i<PIPES;i++){
-    const z=PIPE_Z0+i*PS;
-    const br=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.1,8),mSup);
-    br.rotation.z=Math.PI/2;br.position.set(-0.03,t2sY,z);T2.supply.add(br);
-    T2.supply.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mSup).translateX(-0.08).translateY(t2sY).translateZ(z));
-    const dr=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.05,8),mSup);
-    dr.position.set(0.02,t2sY-0.025,z);T2.supply.add(dr);
-  }
-
-  // ── Tier 2 Collection Header → T2.collect ──
-  const t2cY=t2by+PH/2-SD/2-0.05;
-  const chdr=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,W,12),mCol);
-  chdr.rotation.x=Math.PI/2;chdr.position.set(L+0.08,t2cY,W/2);T2.collect.add(chdr);
-  for(let i=0;i<PIPES;i++){
-    const z=PIPE_Z0+i*PS;
-    const br=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.007,0.08,8),mCol);
-    br.rotation.z=Math.PI/2;br.position.set(L+0.04,t2cY,z);T2.collect.add(br);
-    T2.collect.add(new THREE.Mesh(new THREE.SphereGeometry(0.013,8,8),mCol).translateX(L+0.08).translateY(t2cY).translateZ(z));
-  }
-
-  // ── Labels → G.expansion ──
-  const l1=lbl('TIER 2 — Full NFT System','el');
-  l1.position.set(L/2,t2+0.12,W/2);G.expansion.add(l1);
-  const l2=lbl('600mm tier spacing · 420mm plant clearance','el');
-  l2.position.set(L/2,RH+eH/2,W+0.1);G.expansion.add(l2);
-  // Clearance dimension line
-  const clrY1=RH+Hp+0.003+PH+0.03;
-  const clrY2=t2-Hp;
-  const clrPts=[new THREE.Vector3(-0.25,clrY1,W/2),new THREE.Vector3(-0.25,clrY2,W/2)];
-  G.expansion.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(clrPts),new THREE.LineBasicMaterial({color:0xa78bfa})));
-  const cl3=lbl('Plant Clearance','el');
-  cl3.position.set(-0.3,(clrY1+clrY2)/2,W/2);G.expansion.add(cl3);
 }
 
 /* ═══ DIMENSIONS ═══ */
@@ -639,6 +626,163 @@ buildExpansion();buildDims();
 const TMPL={};
 for(const[key,group]of Object.entries(G)){
   TMPL[key]=[...group.children];
+}
+
+/* ═══ MULTI-TIER VERTICAL SYSTEM CONTROLLERS ═══ */
+function setVisibleTiers(n) {
+  scene.traverse(child => {
+    if (child.name && child.name.startsWith("tier_")) {
+      const tierNum = parseInt(child.name.split("_")[1]);
+      child.visible = (tierNum <= n);
+    }
+  });
+  G.expansion.visible = (n > 1);
+}
+
+function updateLightweightBoxes(n) {
+  const tierSpacing = 0.85;
+  const setGeo=new THREE.BoxGeometry(L-0.08,H*0.18,W-0.08);
+  const bCols=[0x1e3a5f,0x1a5040,0x4a2a5a,0x5a3a2a,0x2a4a5a,0x3a5a2a,0x5a2a4a,0x2a3a5a,0x4a5a2a];
+  
+  scene.traverse(child => {
+    if (child.name && child.name.startsWith("lightweight_set_")) {
+      child.clear();
+      const idx = parseInt(child.name.split("_")[2]);
+      const blockIdx = Math.floor(idx / (SPC * 2));
+      const mat = new THREE.MeshStandardMaterial({color:bCols[blockIdx],metalness:0.2,roughness:0.6});
+      
+      for (let i = 0; i < n; i++) {
+        const m = new THREE.Mesh(setGeo, mat);
+        m.position.set(L/2, (i * tierSpacing) + H*0.09, W/2);
+        m.castShadow = true;
+        child.add(m);
+        
+        if (i > 0) {
+          const legMat = new THREE.MeshStandardMaterial({color: 0x555555, metalness: 0.5, roughness: 0.5});
+          const legGeo = new THREE.BoxGeometry(P, tierSpacing, P);
+          LEGS.forEach(([lx, lz]) => {
+            const leg = new THREE.Mesh(legGeo, legMat);
+            leg.position.set(lx, (i * tierSpacing) - tierSpacing/2, lz);
+            child.add(leg);
+          });
+        }
+      }
+    }
+  });
+}
+
+function updatePlumbingLines(n) {
+  const group = scene.getObjectByName("dynamic_plumbing_lines");
+  if (!group) return;
+  group.clear();
+  
+  const pipeBlue = new THREE.MeshStandardMaterial({color:0x3b82f6,metalness:0.4,roughness:0.4});
+  const pipeGreen = new THREE.MeshStandardMaterial({color:0x22c55e,metalness:0.4,roughness:0.4});
+  const tierSpacing = 0.85;
+  const H_supply = 1.1; 
+  const H_drain = 0.1;  
+  
+  const PH_W = 48;
+  const BLOCKS = 9;
+  const SPC = 26;
+  const RW = 1.2, BG = 0.8, BA = 1.0;
+  const GRP = [2,3,3,3,3,3,3,3,3];
+  
+  const setX = [];
+  let cx = 1.5;
+  GRP.forEach((num, gi) => {
+    for (let i = 0; i < num; i++) { setX.push(cx); cx += L; if (i < num - 1) cx += SET_GAP; }
+    if (gi < GRP.length - 1) { cx += BA; }
+  });
+  const setsEndX = cx;
+  
+  const PER_Z = +((PH_W - (BLOCKS * (W + RW + W) + (BLOCKS - 1) * BG)) / 2).toFixed(2);
+  const blkZ = [];
+  let z = PER_Z; 
+  for (let b = 0; b < BLOCKS; b++) { blkZ.push(z); z += W + RW + W; if (b < BLOCKS - 1) z += BG; }
+  
+  const L_pipe = setsEndX - setX[0] + 0.1;
+  
+  // ── Main Supply pipe from Elevated Tanks to Main Supply Header ──
+  const mainSupHoriz = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 5.4, 8), pipeBlue);
+  mainSupHoriz.rotation.z = Math.PI / 2;
+  mainSupHoriz.position.set(-1.3, 4.0, PH_W - 6);
+  group.add(mainSupHoriz);
+  
+  const mainSupVert = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 2.9, 8), pipeBlue);
+  mainSupVert.position.set(1.4, 2.55, PH_W - 6);
+  group.add(mainSupVert);
+  
+  const supHeaderLength = (PH_W - 6) - blkZ[0];
+  const mainSupHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, supHeaderLength, 8), pipeBlue);
+  mainSupHeader.rotation.x = Math.PI / 2;
+  mainSupHeader.position.set(1.4, H_supply, (PH_W - 6 + blkZ[0]) / 2);
+  group.add(mainSupHeader);
+  
+  for (let i = 1; i < n; i++) {
+    const yLvl = H_supply + i * tierSpacing;
+    const supHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, supHeaderLength, 8), pipeBlue);
+    supHeader.rotation.x = Math.PI / 2;
+    supHeader.position.set(1.4, yLvl, (PH_W - 6 + blkZ[0]) / 2);
+    group.add(supHeader);
+    
+    const conn = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, i * tierSpacing, 8), pipeBlue);
+    conn.position.set(1.4, H_supply + (i * tierSpacing) / 2, PH_W - 6);
+    group.add(conn);
+  }
+  
+  // ── Main N-S Return Drain Header ──
+  const drainHeaderLength = (PH_W - 6) - blkZ[0];
+  const mainDrainHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, drainHeaderLength, 8), pipeGreen);
+  mainDrainHeader.rotation.x = Math.PI / 2;
+  mainDrainHeader.position.set(1.3, H_drain, (PH_W - 6 + blkZ[0]) / 2);
+  group.add(mainDrainHeader);
+  
+  const sumpZs = [8, 24, 40];
+  sumpZs.forEach(sz => {
+    const drop = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 1.0, 8), pipeGreen);
+    drop.position.set(1.3, -0.4, sz);
+    group.add(drop);
+    const conn = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.7, 8), pipeGreen);
+    conn.rotation.z = Math.PI / 2;
+    conn.position.set(1.65, -0.9, sz);
+    group.add(conn);
+  });
+  
+  for (let i = 1; i < n; i++) {
+    const yLvl = H_drain + i * tierSpacing;
+    const drainHeader = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, drainHeaderLength, 8), pipeGreen);
+    drainHeader.rotation.x = Math.PI / 2;
+    drainHeader.position.set(1.3, yLvl, (PH_W - 6 + blkZ[0]) / 2);
+    group.add(drainHeader);
+    
+    const riser = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, i * tierSpacing, 8), pipeGreen);
+    riser.position.set(1.3, H_drain + (i * tierSpacing) / 2, PH_W - 6);
+    group.add(riser);
+  }
+  
+  // ── Row lines ──
+  for (let b = 0; b < BLOCKS; b++) {
+    const zA = blkZ[b] + W/2;
+    const zB = blkZ[b] + W + RW + W/2;
+    
+    [zA, zB].forEach(zVal => {
+      for (let i = 0; i < n; i++) {
+        const ySup = H_supply + i * tierSpacing;
+        const yDrn = H_drain + i * tierSpacing;
+        
+        const rSup = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, L_pipe, 8), pipeBlue);
+        rSup.rotation.z = Math.PI / 2;
+        rSup.position.set(1.4 + L_pipe/2, ySup, zVal);
+        group.add(rSup);
+        
+        const rDrn = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, L_pipe, 8), pipeGreen);
+        rDrn.rotation.z = Math.PI / 2;
+        rDrn.position.set(1.3 + L_pipe/2, yDrn, zVal);
+        group.add(rDrn);
+      }
+    });
+  }
 }
 
 /* ═══ DYNAMIC LAYOUT SYSTEM ═══ */
@@ -722,11 +866,11 @@ function rebuildLayout(){
       }
       layoutClones.push({...pos,wrappers,isOriginal:false,t2Visible:false});
     } else {
-      // Blocks 2-9: lightweight colored box
-      const mat=new THREE.MeshStandardMaterial({color:bCols[blockIdx],metalness:0.2,roughness:0.6});
-      const m=new THREE.Mesh(setGeo,mat);
-      m.position.set(pos.dx+L/2, H*0.09, pos.dz+W/2);
-      m.castShadow=true;addSceneEl(m);
+      // Blocks 2-9: lightweight group
+      const boxGrp = new THREE.Group();
+      boxGrp.name = "lightweight_set_" + idx;
+      boxGrp.position.set(pos.dx, 0, pos.dz);
+      addSceneEl(boxGrp);
       layoutClones.push({...pos,wrappers:null,isOriginal:false,t2Visible:false});
     }
   });
@@ -1131,76 +1275,88 @@ function rebuildLayout(){
   // ── PLUMBING SYSTEM — Tanks, Headers, Drains ──
   // ══════════════════════════════════════════════════════════
   const tankMat=new THREE.MeshStandardMaterial({color:0x1e3a5f,metalness:0.3,roughness:0.5,transparent:true,opacity:0.7});
-  const tankGreenMat=new THREE.MeshStandardMaterial({color:0x065f46,metalness:0.3,roughness:0.5,transparent:true,opacity:0.7});
   const pipeBlue=new THREE.MeshStandardMaterial({color:0x3b82f6,metalness:0.4,roughness:0.4});
   const pipeGreen=new THREE.MeshStandardMaterial({color:0x22c55e,metalness:0.4,roughness:0.4});
-  const pipePurple=new THREE.MeshStandardMaterial({color:0x8b5cf6,metalness:0.4,roughness:0.4});
 
-  // Tank 1: Raw Water (10,000L) — NW corner outside
-  const t1=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,2.2,12),tankMat);
-  t1.position.set(-3,1.1,PH_W-3);t1.userData.ovlType='plumbing';addSceneEl(t1);
-  const t1l=lbl('T1: RAW\n10,000L');t1l.position.set(-3,2.5,PH_W-3);t1l.userData.ovlType='plumbing';addSceneEl(t1l);
-
-  // RO System — Utility room
-  const roBox=new THREE.Mesh(new THREE.BoxGeometry(2,1.8,1),
-    new THREE.MeshStandardMaterial({color:0x6366f1,metalness:0.5,roughness:0.3,transparent:true,opacity:0.6}));
-  roBox.position.set(-3,0.9,PH_W-8);roBox.userData.ovlType='plumbing';addSceneEl(roBox);
-  const rol=lbl('RO 500LPH');rol.position.set(-3,2.0,PH_W-8);rol.userData.ovlType='plumbing';addSceneEl(rol);
-
-  // Tank 2: RO Water (5,000L) — Utility room
-  const t2=new THREE.Mesh(new THREE.CylinderGeometry(0.9,0.9,1.8,12),tankMat);
-  t2.position.set(-3,0.9,PH_W-12);t2.userData.ovlType='plumbing';addSceneEl(t2);
-  const t2l=lbl('T2: RO\n5,000L');t2l.position.set(-3,2.2,PH_W-12);t2l.userData.ovlType='plumbing';addSceneEl(t2l);
-
-  // Tank 3: Nutrient Mixing (5,000L) — Underground center-west
-  const t3=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.0,1.6,12),tankGreenMat);
-  t3.position.set(2,-0.8,PH_W/2);t3.userData.ovlType='plumbing';addSceneEl(t3);
-  const t3l=lbl('T3: NUTRIENT\nMIXING 5,000L');t3l.position.set(2,0.3,PH_W/2);t3l.userData.ovlType='plumbing';addSceneEl(t3l);
-
-  // Tank 4: Drain Collection (3,000L) — Adjacent to T3
-  const t4=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,1.4,12),tankGreenMat);
-  t4.position.set(2,-0.7,PH_W/2+4);t4.userData.ovlType='plumbing';addSceneEl(t4);
-  const t4l=lbl('T4: DRAIN\n3,000L');t4l.position.set(2,0.2,PH_W/2+4);t4l.userData.ovlType='plumbing';addSceneEl(t4l);
-
-  // Tank 5: Cooling Pad Sump (15,000L) — Outside south wall
-  const t5=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.4,2.4,12),
-    new THREE.MeshStandardMaterial({color:0xeab308,metalness:0.3,roughness:0.5,transparent:true,opacity:0.6}));
-  t5.position.set(PH_L/2,-1.2,-3);t5.userData.ovlType='plumbing';addSceneEl(t5);
-  const t5l=lbl('T5: COOLING\nPAD 15,000L');t5l.position.set(PH_L/2,0.3,-3);t5l.userData.ovlType='plumbing';addSceneEl(t5l);
-
-  // 4" Supply Header (blue) — runs along X axis at ground level
-  const supplyHeader=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,PH_L,6),pipeBlue);
-  supplyHeader.rotation.z=Math.PI/2;
-  supplyHeader.position.set(PH_L/2,0.06,3);supplyHeader.userData.ovlType='plumbing';addSceneEl(supplyHeader);
-  const shl=lbl('4\" SUPPLY HEADER (Blue)','el');
-  shl.position.set(PH_L/2,0.4,2);shl.userData.ovlType='plumbing';addSceneEl(shl);
-
-  // Block T-joints (9 reducing tees off supply header)
-  const tJointGeo=new THREE.BoxGeometry(0.15,0.15,0.15);
-  const tJointMat=new THREE.MeshStandardMaterial({color:0x60a5fa,metalness:0.5,roughness:0.3});
-  for(let b=0;b<BLOCKS;b++){
-    const bz=blkZ[b]+W+RW/2;
-    // T-joint on supply header
-    const tj=new THREE.Mesh(tJointGeo,tJointMat);
-    tj.position.set(setX[0]-0.5,0.06,3);tj.userData.ovlType='plumbing';addSceneEl(tj);
-    // 2" branch to block
-    const branch=new THREE.Mesh(new THREE.CylinderGeometry(0.032,0.032,bz-3,4),pipeBlue);
-    branch.position.set(setX[0]-0.5,0.06,(3+bz)/2);
-    branch.userData.ovlType='plumbing';addSceneEl(branch);
+  // Steel platform outside NW corner (4m high structure)
+  const platformMat = new THREE.MeshStandardMaterial({color: 0x3f3f46, metalness: 0.8, roughness: 0.2});
+  const platform = new THREE.Mesh(new THREE.BoxGeometry(4, 0.15, 6), platformMat);
+  platform.position.set(-4, 4.0, PH_W - 6);
+  platform.userData.ovlType = 'plumbing'; addSceneEl(platform);
+  
+  const postGeo = new THREE.CylinderGeometry(0.1, 0.1, 4.0, 8);
+  [[-5.8, PH_W - 8.8], [-2.2, PH_W - 8.8], [-5.8, PH_W - 3.2], [-2.2, PH_W - 3.2]].forEach(([px, pz]) => {
+    const post = new THREE.Mesh(postGeo, platformMat);
+    post.position.set(px, 2.0, pz);
+    post.userData.ovlType = 'plumbing'; addSceneEl(post);
+  });
+  
+  // 3x 5,000L Green HDPE Tanks (15,000L Nutrient Solution)
+  const elevatedTankGeo = new THREE.CylinderGeometry(0.9, 0.9, 2.2, 16);
+  const elevatedTankMat = new THREE.MeshStandardMaterial({color: 0x065f46, metalness: 0.2, roughness: 0.6});
+  for (let t = 0; t < 3; t++) {
+    const tank = new THREE.Mesh(elevatedTankGeo, elevatedTankMat);
+    tank.position.set(-4, 4.0 + 0.075 + 1.1, PH_W - 8 + t * 2.0);
+    tank.userData.ovlType = 'plumbing'; addSceneEl(tank);
+    
+    const tl = lbl('HDPE Tank ' + (t+1) + '\n5,000L');
+    tl.position.set(-4, 4.0 + 2.5, PH_W - 8 + t * 2.0);
+    tl.userData.ovlType = 'plumbing'; addSceneEl(tl);
   }
 
-  // 4" Return Drain (green) — runs along X axis, sloped to west
-  const returnDrain=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,PH_L,6),pipeGreen);
-  returnDrain.rotation.z=Math.PI/2;
-  returnDrain.position.set(PH_L/2,-0.06,PH_W-3);returnDrain.userData.ovlType='plumbing';addSceneEl(returnDrain);
-  const drl=lbl('4\" RETURN DRAIN (Green)','el');
-  drl.position.set(PH_L/2,0.3,PH_W-2);drl.userData.ovlType='plumbing';addSceneEl(drl);
+  // 3 underground RCC sumps along West wall inside (33,000L each, total 1,00,000L for 3-tier expansion)
+  const sumpMat = new THREE.MeshStandardMaterial({color: 0x52525b, metalness: 0.1, roughness: 0.8, transparent: true, opacity: 0.85});
+  const sumpGeo = new THREE.BoxGeometry(4, 3, 3);
+  const sumpZs = [8, 24, 40];
+  const sumpLabels = ['Sump A\n33,000L', 'Sump B\n33,000L', 'Sump C\n33,000L'];
+  for (let s = 0; s < 3; s++) {
+    const sump = new THREE.Mesh(sumpGeo, sumpMat);
+    sump.position.set(2, -1.5, sumpZs[s]);
+    sump.userData.ovlType = 'plumbing'; addSceneEl(sump);
+    
+    const sl = lbl(sumpLabels[s]);
+    sl.position.set(2, 0.3, sumpZs[s]);
+    sl.userData.ovlType = 'plumbing'; addSceneEl(sl);
+  }
+
+  // Tank 5: Cooling Pad Sump (15,000L) — Outside south wall
+  const t5 = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 2.4, 12),
+    new THREE.MeshStandardMaterial({color: 0xeab308, metalness: 0.3, roughness: 0.5, transparent: true, opacity: 0.6}));
+  t5.position.set(PH_L / 2, 1.2, -3); t5.userData.ovlType = 'plumbing'; addSceneEl(t5);
+  const t5l = lbl('Cooling Pad Tank\n15,000L (FRP)'); t5l.position.set(PH_L / 2, 2.7, -3); t5l.userData.ovlType = 'plumbing'; addSceneEl(t5l);
+
+  // Raw Water Tank (10,000L)
+  const t1 = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 2.2, 12), tankMat);
+  t1.position.set(-3, 1.1, PH_W - 3); t1.userData.ovlType = 'plumbing'; addSceneEl(t1);
+  const t1l = lbl('Raw Water\n10,000L'); t1l.position.set(-3, 2.5, PH_W - 3); t1l.userData.ovlType = 'plumbing'; addSceneEl(t1l);
+
+  // 1500 LPH RO Plant
+  const roBox = new THREE.Mesh(new THREE.BoxGeometry(2, 1.8, 1),
+    new THREE.MeshStandardMaterial({color: 0x6366f1, metalness: 0.5, roughness: 0.3, transparent: true, opacity: 0.6}));
+  roBox.position.set(-3, 0.9, PH_W - 8); roBox.userData.ovlType = 'plumbing'; addSceneEl(roBox);
+  const rol = lbl('RO 1,500 LPH'); rol.position.set(-3, 2.0, PH_W - 8); rol.userData.ovlType = 'plumbing'; addSceneEl(rol);
+
+  // Dedicated 2,000L RO Tank (utility room)
+  const t2_ro = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.8, 12), tankMat);
+  t2_ro.position.set(-3, 0.9, PH_W - 12); t2_ro.userData.ovlType = 'plumbing'; addSceneEl(t2_ro);
+  const t2l = lbl('Fogger RO Tank\n2,000L'); t2l.position.set(-3, 2.0, PH_W - 12); t2l.userData.ovlType = 'plumbing'; addSceneEl(t2l);
+
+  // Water Chiller (Titanium Heat Exchanger)
+  const chiller = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 1.0),
+    new THREE.MeshStandardMaterial({color: 0x0891b2, metalness: 0.6, roughness: 0.3}));
+  chiller.position.set(0.5, 0.6, PH_W - 16); chiller.userData.ovlType = 'plumbing'; addSceneEl(chiller);
+  const chillerLbl = lbl('Inline Chiller\n5 TR'); chillerLbl.position.set(0.5, 1.5, PH_W - 16); chillerLbl.userData.ovlType = 'plumbing'; addSceneEl(chillerLbl);
 
   // Utility Room outline
-  const utilWall=new THREE.Mesh(new THREE.BoxGeometry(0.1,3,8),
-    new THREE.MeshStandardMaterial({color:0x94a3b8,transparent:true,opacity:0.15}));
-  utilWall.position.set(-1.5,1.5,PH_W-8);utilWall.userData.ovlType='plumbing';addSceneEl(utilWall);
-  const utl=lbl('UTILITY ROOM');utl.position.set(-3,3.2,PH_W-8);utl.userData.ovlType='plumbing';addSceneEl(utl);
+  const utilWall = new THREE.Mesh(new THREE.BoxGeometry(0.1, 3, 8),
+    new THREE.MeshStandardMaterial({color: 0x94a3b8, transparent: true, opacity: 0.15}));
+  utilWall.position.set(-1.5, 1.5, PH_W - 8); utilWall.userData.ovlType = 'plumbing'; addSceneEl(utilWall);
+  const utl = lbl('UTILITY ROOM'); utl.position.set(-3, 3.2, PH_W - 8); utl.userData.ovlType = 'plumbing'; addSceneEl(utl);
+
+  // Group for dynamic main headers & branch pipes
+  const plumbingLinesGroup = new THREE.Group();
+  plumbingLinesGroup.name = "dynamic_plumbing_lines";
+  addSceneEl(plumbingLinesGroup);
 
   // ── Block & row labels ──
   for(let b=0;b<BLOCKS;b++){
@@ -1225,54 +1381,14 @@ function rebuildLayout(){
   V.front=[[lctr.x,5,PH_W+25],[lctr.x,0,lctr.z]];
   V.side=[[PH_L+25,5,lctr.z],[lctr.x,0,lctr.z]];
 
-  buildT2Controls();applyT2State();
+  const levelsSlider = document.getElementById('sl-levels');
+  const initialLevels = levelsSlider ? parseInt(levelsSlider.value) : 1;
+  setVisibleTiers(initialLevels);
+  updateLightweightBoxes(initialLevels);
+  updatePlumbingLines(initialLevels);
 }
 
-/* ═══ PER-SET TIER 2 CONTROLS ═══ */
-function buildT2Controls(){
-  const container=document.getElementById('t2-per-set');
-  container.innerHTML='';
-  layoutClones.forEach((set,idx)=>{
-    const div=document.createElement('div');div.className='tr';
-    div.innerHTML=`<label><span class="d" style="background:#c4b5fd"></span>${set.label}</label><input type="checkbox" class="sw" data-t2="${idx}">`;
-    container.appendChild(div);
-    div.querySelector('input').addEventListener('change',(e)=>{
-      layoutClones[idx].t2Visible=e.target.checked;
-      applyT2ForSet(idx);
-    });
-  });
-}
 
-function applyT2State(){
-  layoutClones.forEach((_,idx)=>applyT2ForSet(idx));
-}
-
-function applyT2ForSet(idx){
-  const set=layoutClones[idx];
-  const vis=set.t2Visible;
-  if(set.isOriginal){
-    // Control original T2 groups
-    G.expansion.visible=vis;
-    Object.values(T2).forEach(g=>g.visible=vis);
-  } else if(set.wrappers){
-    // For clones, find the expansion wrapper and T2 sub-groups inside component wrappers
-    if(set.wrappers.expansion) set.wrappers.expansion.visible=vis;
-    // T2 sub-groups are nested inside component wrappers
-    ['frame','brackets','pipes','cups','supply','collect','water'].forEach(key=>{
-      if(set.wrappers[key]){
-        // The T2 subgroup is the last child added to each component group in the template
-        // In the clone wrapper, find groups that match T2 subgroups
-        set.wrappers[key].traverse(child=>{
-          if(child.isGroup && child!==set.wrappers[key]){
-            // Check if this is a T2 sub-group (cloned from T2.frame, T2.pipes etc.)
-            // T2 groups start hidden, so they have userData or are the nested groups
-            child.visible=vis;
-          }
-        });
-      }
-    });
-  }
-}
 
 /* ═══ GROUND (placeholder, rebuilt by rebuildLayout) ═══ */
 
@@ -1312,15 +1428,12 @@ document.getElementById('sw-hideAll').addEventListener('change',(e)=>{
   });
 });
 
-/* ═══ ALL-T2 MASTER TOGGLE ═══ */
-document.getElementById('sw-allT2').addEventListener('change',(e)=>{
-  const checked=e.target.checked;
-  layoutClones.forEach((set,idx)=>{
-    set.t2Visible=checked;
-    applyT2ForSet(idx);
-  });
-  // Sync per-set checkboxes
-  document.querySelectorAll('[data-t2]').forEach(cb=>cb.checked=checked);
+/* ═══ VERTICAL LEVELS SLIDER HANDLER ═══ */
+setupSlider('sl-levels', (v, sv) => {
+  sv.textContent = v === 1 ? '1 Level' : v + ' Levels';
+  setVisibleTiers(v);
+  updateLightweightBoxes(v);
+  updatePlumbingLines(v);
 });
 
 /* ═══ COMPONENT TOGGLES ═══ */
@@ -1378,12 +1491,12 @@ const nfo={
   brackets:'90° Inside Corner Bracket (J38-BK-4040) — 37×37mm die-cast aluminum, sand-blast finish. 12 per set (2 per leg). Sits in the 90° angle at every leg↔beam joint.',
   hardware:'T-Slot Nut (M6, 10mm slot, 20×10.5×9.8mm) + M8 Socket Head Cap Screw — 2 T-nuts and 2 screws per bracket. 20 of each per set.',
   endcaps:'End Cap 40×40mm — Black polypropylene snap-fit cap covering exposed profile ends. 4 per set (leg bottoms). Prevents debris and provides a clean finish.',
-  pipes:'4″×2″ (100×55mm) UPVC NFT Channel — Openable, single-walled. 3m long, 1% slope. 14 holes at 200mm spacing. 7 channels per set at 200mm pitch (100mm gap for airflow).',
-  cups:'2″ (50mm) Net Cup — Tapered, holds cocopeat plug + seedling. 98 per set (14/pipe × 7 pipes), 50,960 for the full farm.',
+  pipes:'4″×2″ (100×55mm) UPVC NFT Channel — Openable, single-walled. 3m long, 1% slope. 15 holes at 200mm spacing. 10 channels per set at 150mm pitch.',
+  cups:'2″ (50mm) Net Cup — Tapered, holds cocopeat plug + seedling. 150 per set (15/pipe × 10 pipes), 70,200 for the full farm.',
   supply:'1″ PVC Supply Header (Green) — Pumps A+B nutrient solution from elevated tank. T-joints at each channel.',
   collect:'1″ PVC Collection Header (Blue) — Gravity-fed drainage into underground RCC sump.',
   water:'Nutrient Film — 1-3mm depth, 1-2 L/min per channel. pH 5.5-6.0, EC 1.2-2.0 mS/cm.',
-  expansion:'TIER 2 — Complete NFT system replica. 600mm leg extension, 420mm plant clearance. Adds 10 pipes × 14 holes = 140 more plant sites. Bolt-on via T-slot joining plates.',
+  expansion:'6-LEVEL VERTICAL SYSTEM — Stackable aluminum frames up to 6m tall. Each level adds 150 plant sites per set. Total capacity up to 70,200 plants per level, 421,200 plants at 6 levels. Gravity-fed through independent row pipes and subterranean sumps.',
 };
 function getG(o){let c=o;while(c){for(const[n,g]of Object.entries(G))if(c===g)return n;c=c.parent}return null}
 ren.domElement.addEventListener('pointermove',e=>{

@@ -1,6 +1,8 @@
-# Ignore everything except 3d-model
+# Ignore everything except 3d-model and Project
 *
 !.gitignore
 !3d-model/
 !3d-model/**
+!Project/
+!Project/**
 !DEPLOY.md

@@ -185,7 +185,12 @@ class PitchDeck {
 
     // Remove active from current
     current.classList.remove('active');
-    current.classList.add(direction > 0 ? 'prev' : '');
+    if (direction > 0) {
+      current.classList.add('prev');
+    }
+
+    // Ensure target doesn't have 'prev' class when becoming active
+    target.classList.remove('prev');
 
     // Position target
     target.style.transform = `translateX(${direction * 60}px)`;

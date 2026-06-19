@@ -128,13 +128,17 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 60px 80px;
+  padding: 60px 80px 100px;
   opacity: 0;
   visibility: hidden;
   transform: translateX(60px);
   transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
   background: linear-gradient(135deg, var(--green-950) 0%, var(--green-900) 40%, var(--green-800) 100%);
   z-index: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(197, 165, 90, 0.25) transparent;
 }
 
 .slide.active {
@@ -1195,10 +1199,45 @@ body {
   font-style: italic;
 }
 
-/* ── Responsive ── */
+/* ── Custom Scrollbar (Webkit) ── */
+.slide::-webkit-scrollbar {
+  width: 6px;
+}
+
+.slide::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.slide::-webkit-scrollbar-thumb {
+  background: rgba(197, 165, 90, 0.25);
+  border-radius: 3px;
+}
+
+.slide::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 165, 90, 0.4);
+}
+
+/* ── Metrics Banner (Slide 10) ── */
+.metrics-banner {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── Responsive — Tablets ── */
 @media (max-width: 1024px) {
   .slide {
-    padding: 40px 40px;
+    padding: 40px 40px 90px;
+    justify-content: flex-start;
+  }
+
+  .slide--title,
+  .slide--thankyou {
+    justify-content: center;
   }
 
   .slide__body {
@@ -1206,8 +1245,13 @@ body {
     gap: 24px;
   }
 
+  .slide__right {
+    max-height: 300px;
+  }
+
   .team-grid {
     grid-template-columns: 1fr;
+    max-width: 400px;
   }
 
   .budget-grid {
@@ -1239,39 +1283,383 @@ body {
   }
 
   .crops-showcase {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
 
   .crop-category__image {
     height: 120px;
   }
+
+  .comparison-table {
+    min-width: 650px;
+  }
+
+  .metrics-banner {
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .metrics-banner > div {
+    min-width: 140px;
+  }
 }
 
+/* ── Responsive — Mobile ── */
 @media (max-width: 768px) {
   .slide {
-    padding: 30px 24px;
+    padding: 24px 20px 100px;
+  }
+
+  .slide__header {
+    margin-bottom: 20px;
+  }
+
+  .slide__title {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+  }
+
+  .slide__subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .slide--title .slide__title {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
   }
 
   .nav__arrow {
-    width: 36px;
-    height: 36px;
-    font-size: 0.9rem;
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
   }
 
-  .nav__arrow--prev { left: 10px; }
-  .nav__arrow--next { right: 10px; }
+  .nav__arrow--prev { left: 8px; }
+  .nav__arrow--next { right: 8px; }
 
-  .comparison-table {
+  .slide-counter {
+    top: 12px;
+    right: 16px;
     font-size: 0.65rem;
   }
 
+  .fullscreen-btn {
+    top: 10px;
+    left: 14px;
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Crops grid single column */
+  .crops-showcase {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .crop-category__image {
+    height: 100px;
+  }
+
+  .crop-category__body {
+    padding: 12px 14px 14px;
+  }
+
+  .crop-tag {
+    font-size: 0.62rem;
+    padding: 3px 8px;
+  }
+
+  /* Comparison table scroll */
+  .comparison-table {
+    font-size: 0.62rem;
+    min-width: 550px;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 8px 10px;
+  }
+
+  /* Timeline → vertical on mobile */
   .timeline {
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0;
+    padding: 0 0 0 24px;
+  }
+
+  .timeline::before {
+    top: 0;
+    bottom: 0;
+    left: 12px;
+    right: auto;
+    width: 3px;
+    height: 100%;
   }
 
   .timeline__item {
-    min-width: 100px;
+    padding-top: 0;
+    padding-left: 32px;
+    padding-bottom: 20px;
+    text-align: left;
+    min-width: 0;
+  }
+
+  .timeline__dot {
+    top: 2px;
+    left: -24px;
+    transform: none;
+    width: 14px;
+    height: 14px;
+  }
+
+  .timeline__item--active .timeline__dot {
+    top: 0;
+    width: 18px;
+    height: 18px;
+    left: -26px;
+  }
+
+  .timeline__month {
+    font-size: 0.72rem;
+    margin-bottom: 4px;
+  }
+
+  .timeline__desc {
+    font-size: 0.72rem;
+    padding: 0;
+    line-height: 1.45;
+  }
+
+  /* Team cards */
+  .team-grid {
+    gap: 20px;
+  }
+
+  .team-card {
+    padding: 20px 16px;
+  }
+
+  .team-card__photo {
+    width: 72px;
+    height: 72px;
+  }
+
+  .team-card__name {
+    font-size: 1rem;
+  }
+
+  .team-card__details {
+    font-size: 0.72rem;
+  }
+
+  /* Budget */
+  .budget-section__header {
+    font-size: 0.78rem;
+    padding: 10px 14px;
+  }
+
+  .budget-table td {
+    padding: 6px 14px;
+    font-size: 0.7rem;
+  }
+
+  /* Ask badge */
+  .ask-badge {
+    padding: 14px 24px;
+  }
+
+  .ask-badge__value {
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
+  }
+
+  /* Funding stack */
+  .funding-stack {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .funding-chip {
+    min-width: 180px;
+  }
+
+  /* Metrics banner (Slide 10) */
+  .metrics-banner {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  /* Metrics grid */
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .metric-card {
+    padding: 14px 10px;
+  }
+
+  .metric-card__value {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+  }
+
+  .metric-card__label {
+    font-size: 0.65rem;
+  }
+
+  /* Contact grid */
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .contact-item {
+    font-size: 0.78rem;
+  }
+
+  /* Title badges */
+  .title-badges {
+    gap: 8px;
+  }
+
+  .title-badge {
+    font-size: 0.65rem;
+    padding: 6px 12px;
+  }
+
+  /* Bullet list */
+  .bullet-list {
+    gap: 10px;
+  }
+
+  .bullet-list li {
+    font-size: 0.82rem;
+    gap: 10px;
+  }
+
+  /* TAM circles */
+  .tam-circles {
+    width: 200px;
+    height: 200px;
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+
+  .tam-circle--tam {
+    width: 200px;
+    height: 200px;
+  }
+
+  .tam-circle--sam {
+    width: 140px;
+    height: 140px;
+    top: 30px;
+    left: 30px;
+  }
+
+  .tam-circle--som {
+    width: 80px;
+    height: 80px;
+    top: 60px;
+    left: 60px;
+  }
+
+  .tam-legend {
+    font-size: 0.68rem;
+    width: 100%;
+  }
+
+  /* Revenue cards */
+  .revenue-highlight {
+    gap: 10px;
+  }
+
+  .revenue-card {
+    min-width: 120px;
+    padding: 10px;
+  }
+
+  .revenue-card__value {
+    font-size: 0.95rem;
+  }
+}
+
+/* ── Responsive — Small phones ── */
+@media (max-width: 480px) {
+  .slide {
+    padding: 20px 16px 100px;
+  }
+
+  .slide__header {
+    margin-bottom: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .slide__title {
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+  }
+
+  .slide--title .slide__title {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+
+  .title-logo {
+    width: clamp(90px, 25vw, 140px);
+  }
+
+  .nav__arrow {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .nav__arrow--prev { left: 4px; }
+  .nav__arrow--next { right: 4px; }
+
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .metric-card {
+    padding: 10px 8px;
+  }
+
+  .metric-card__value {
+    font-size: 1rem;
+  }
+
+  .metric-card__label {
+    font-size: 0.58rem;
+  }
+
+  .tam-circles {
+    transform: scale(0.7);
+  }
+
+  .comparison-table {
+    min-width: 480px;
+    font-size: 0.58rem;
+  }
+
+  .budget-grid {
+    gap: 14px;
+  }
+
+  .budget-section__header {
+    font-size: 0.72rem;
+  }
+
+  .ask-badge {
+    padding: 12px 18px;
+  }
+
+  .ask-badge__label {
+    font-size: 0.6rem;
   }
 }
 
